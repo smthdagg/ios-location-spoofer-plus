@@ -303,19 +303,34 @@ function wrapLng(lng) {
 function moduleResponse(request, token, includeBody = true) {
   const url = new URL(request.url);
   const configUrl = `${url.origin}/loc.json?token=${encodeURIComponent(token)}`;
+  const scriptUrl = `${url.origin}/location-spoofer.js`;
   return textResponse(
     includeBody ? `#!name=iOS Location Spoofer
 #!desc=Apple 定位伪装。配置已绑定 ${url.origin}，网页保存后小火箭读取 /loc.json 生效。
 #!homepage=https://github.com/mekos2772/ios-location-spoofer
 
 [Script]
-iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=${SPOOFER_SCRIPT_PATH},argument=mode=response&latitude=37.3349&longitude=-122.00902&horizontalAccuracy=39&verticalAccuracy=1000&altitude=530&debug=false&configUrl=${configUrl}
+iOS Location Spoofer Prepare = type=http-request,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=0,timeout=3,script-path=${scriptUrl},argument=debug=false
+iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=${scriptUrl},argument=mode=response&latitude=37.3349&longitude=-122.00902&horizontalAccuracy=39&verticalAccuracy=1000&altitude=530&debug=false&configUrl=${configUrl}
 
 [MITM]
 hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
 ` : "",
     "text/plain; charset=utf-8"
   );
+}
+
+async function scriptResponse(includeBody = true) {
+  if (!includeBody) {
+    return textResponse("", "application/javascript; charset=utf-8");
+  }
+  const upstream = await fetch(SPOOFER_SCRIPT_PATH, {
+    cf: { cacheTtl: 3600, cacheEverything: true },
+  });
+  if (!upstream.ok) {
+    return textResponse("failed to load location-spoofer.js", "text/plain", 502);
+  }
+  return textResponse(await upstream.text(), "application/javascript; charset=utf-8");
 }
 
 export default {
@@ -378,6 +393,10 @@ export default {
         return unauthorized();
       }
       return moduleResponse(request, url.searchParams.get("token"), request.method === "GET");
+    }
+
+    if (url.pathname === "/location-spoofer.js" && (request.method === "GET" || request.method === "HEAD")) {
+      return scriptResponse(request.method === "GET");
     }
 
     if (url.pathname === "/health") {
