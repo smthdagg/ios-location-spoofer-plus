@@ -69,6 +69,8 @@ https://ios-location-picker.你的账号.workers.dev/?token=你的TOKEN
 
 搜索并点选候选结果，或直接点地图放置图钉 → **保存定位** → 关开 iPhone 定位服务生效（Loon 约 60 秒内刷新缓存）。
 
+重要：每次保存新的定位后，都需要把 iPhone 的定位服务关闭一下再开启，系统才会重新请求定位并命中新坐标。
+
 ## Shadowrocket 配置
 
 推荐直接导入 Worker 自动生成的小火箭模块：
