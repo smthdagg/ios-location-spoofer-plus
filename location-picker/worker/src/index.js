@@ -114,6 +114,28 @@ hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.c
   );
 }
 
+function staticModuleResponse(request, loc, name, includeBody = true) {
+  const url = new URL(request.url);
+  const scriptUrl = `${url.origin}/location-spoofer.js`;
+  const altitude = Number.isFinite(Number(loc.altitude)) ? Math.round(Number(loc.altitude)) : 530;
+  const horizontalAccuracy = Number.isFinite(Number(loc.horizontalAccuracy)) ? Math.round(Number(loc.horizontalAccuracy)) : 39;
+  const verticalAccuracy = Number.isFinite(Number(loc.verticalAccuracy)) ? Math.round(Number(loc.verticalAccuracy)) : 1000;
+  return textResponse(
+    includeBody ? `#!name=${name}
+#!desc=诊断用：硬编码坐标，不读取 /loc.json。用于确认 Shadowrocket 模块和 MITM 是否真的生效。
+#!homepage=https://github.com/mekos2772/ios-location-spoofer
+
+[Script]
+iOS Location Spoofer Prepare = type=http-request,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=0,timeout=3,script-path=${scriptUrl},argument=debug=true
+iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=${scriptUrl},argument=mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=true
+
+[MITM]
+hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
+` : "",
+    "text/plain; charset=utf-8"
+  );
+}
+
 async function scriptResponse(includeBody = true) {
   if (!includeBody) {
     return textResponse("", "application/javascript; charset=utf-8");
@@ -208,6 +230,21 @@ export default {
         return unauthorized();
       }
       return moduleResponse(request, url.searchParams.get("token"), request.method === "GET");
+    }
+
+    if (url.pathname === "/shadowrocket-apple.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
+      if (!auth.ok) {
+        return unauthorized();
+      }
+      return staticModuleResponse(request, DEFAULT, "iOS Location Spoofer Apple Test", request.method === "GET");
+    }
+
+    if (url.pathname === "/shadowrocket-static.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
+      if (!auth.ok) {
+        return unauthorized();
+      }
+      const loc = await readLoc(env);
+      return staticModuleResponse(request, loc, "iOS Location Spoofer Static Test", request.method === "GET");
     }
 
     if (url.pathname === "/location-spoofer.js" && (request.method === "GET" || request.method === "HEAD")) {
