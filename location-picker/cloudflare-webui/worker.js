@@ -300,10 +300,12 @@ function wrapLng(lng) {
   return ((((Number(lng) + 180) % 360) + 360) % 360) - 180;
 }
 
-function moduleResponse(request, token, includeBody = true) {
+function moduleResponse(request, token, loc, includeBody = true) {
   const url = new URL(request.url);
-  const configUrl = `${url.origin}/loc.json?token=${encodeURIComponent(token)}`;
   const scriptUrl = `${url.origin}/location-spoofer.js`;
+  const altitude = Number.isFinite(Number(loc.altitude)) ? Math.round(Number(loc.altitude)) : 530;
+  const horizontalAccuracy = Number.isFinite(Number(loc.horizontalAccuracy)) ? Math.round(Number(loc.horizontalAccuracy)) : 39;
+  const verticalAccuracy = Number.isFinite(Number(loc.verticalAccuracy)) ? Math.round(Number(loc.verticalAccuracy)) : 1000;
   return textResponse(
     includeBody ? `#!name=iOS Location Spoofer
 #!desc=Apple 定位伪装。配置已绑定 ${url.origin}，网页保存后小火箭读取 /loc.json 生效。
@@ -311,7 +313,7 @@ function moduleResponse(request, token, includeBody = true) {
 
 [Script]
 iOS Location Spoofer Prepare = type=http-request,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=0,timeout=3,script-path=${scriptUrl},argument=debug=false
-iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=${scriptUrl},argument=mode=response&latitude=37.3349&longitude=-122.00902&horizontalAccuracy=39&verticalAccuracy=1000&altitude=530&debug=false&configUrl=${configUrl}
+iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=${scriptUrl},argument=mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=false&configHost=${url.origin}&configToken=${encodeURIComponent(token)}
 
 [MITM]
 hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
@@ -414,7 +416,8 @@ export default {
       if (!auth.ok) {
         return unauthorized();
       }
-      return moduleResponse(request, url.searchParams.get("token"), request.method === "GET");
+      const loc = await readLoc(env);
+      return moduleResponse(request, url.searchParams.get("token"), loc, request.method === "GET");
     }
 
     if (url.pathname === "/shadowrocket-apple.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
