@@ -1,6 +1,6 @@
 // 定位选点服务 —— 单文件、零依赖（仅用 Node 内置模块）
 // 支持：高德矢量 / 高德卫星 / 国外 OSM 多地图切换，自动 GCJ-02<->WGS-84 坐标转换
-// 搜索显示多个候选（只移动视野）；点地图/拖图钉移动定位点；点“保存定位”才写入
+// 搜索显示多个候选（点选即放图钉）；点地图/拖图钉移动定位点；点“保存定位”才写入
 // 点地图自动按地形获取海拔；海拔/水平精度/垂直精度可手动微调
 // 可选自带 https（复用 3x-ui 的 acme.sh 证书）
 //
@@ -353,7 +353,7 @@ function commit(){
     .catch(function(){ toast("网络错误"); });
 }
 
-// 搜索：列出多个候选，点选只移动地图视野（不动定位点、不保存）
+// 搜索：列出多个候选，点选即放置图钉（仍需点“保存定位”才写入）
 function search(){
   var q=$("q").value.trim(); if(!q) return;
   fetch("https://nominatim.openstreetmap.org/search?format=json&addressdetails=0&limit=8&q="+encodeURIComponent(q))
@@ -369,8 +369,9 @@ function search(){
           box.classList.remove("show"); box.innerHTML="";
           var la=+it.lat, lo=+it.lon;
           var p = datum==="gcj"?GCJ.wgs2gcj(la,lo):[la,lo];
-          map.setView(p,15);            // 只移动视野；要设为定位，请在地图上点一下放图钉
-          toast("已定位视野，在地图上点一下放置图钉");
+          map.setView(p,15);
+          movePin(p[0],p[1]);
+          toast("已放置图钉，点“保存定位”生效");
         });
         box.appendChild(row);
       });

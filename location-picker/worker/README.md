@@ -69,7 +69,7 @@ https://ios-location-picker.你的账号.workers.dev/loc.json?token=你的TOKEN
 https://ios-location-picker.你的账号.workers.dev/?token=你的TOKEN
 ```
 
-点地图 → **保存定位** → 关开 iPhone 定位服务生效（Loon 约 60 秒内刷新缓存）。
+搜索并点选候选结果，或直接点地图放置图钉 → **保存定位** → 关开 iPhone 定位服务生效（Loon 约 60 秒内刷新缓存）。
 
 ## Shadowrocket 配置
 

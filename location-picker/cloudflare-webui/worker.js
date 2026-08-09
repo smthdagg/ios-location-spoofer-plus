@@ -140,7 +140,8 @@ function search(){
           var la=+it.lat, lo=+it.lon;
           var p = datum==="gcj"?GCJ.wgs2gcj(la,lo):[la,lo];
           map.setView(p,15);
-          toast("已定位视野，在地图上点一下放置图钉");
+          movePin(p[0],p[1]);
+          toast("已放置图钉，点“保存定位”生效");
         });
         box.appendChild(row);
       });
