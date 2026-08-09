@@ -145,6 +145,10 @@ https://你的域名/admin
 
 ## 第二部分：导入代理工具模块
 
+后台会把地图地址和各代理工具模块集中展示，复制对应客户端的 URL 即可。
+
+![多代理工具模块](docs/assets/proxy-modules.png)
+
 在 `/admin` 后台复制你正在使用的代理工具模块 URL。Shadowrocket 格式类似：
 
 ```text

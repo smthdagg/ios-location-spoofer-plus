@@ -182,6 +182,8 @@ https://你的域名/admin
 
 TOKEN 生成后日常不需要再操作。如需废弃旧模块 URL，可以点击“重新生成 TOKEN 并重置所有参数”。
 
+![多代理工具模块](docs/assets/proxy-modules.png)
+
 ## 6. 导入代理工具模块
 
 在后台复制你使用的代理工具模块。Shadowrocket 示例：
@@ -500,6 +502,8 @@ On first use, click “Generate TOKEN”. The dashboard will show:
 - KV / TOKEN status
 
 After TOKEN is generated, you normally do not need to touch it again. Use “Regenerate TOKEN and reset all parameters” only when you want to invalidate old module URLs and restore default location settings.
+
+![Multi-Client Module URLs](docs/assets/proxy-modules.png)
 
 ## 6. Import Proxy Tool Module
 
