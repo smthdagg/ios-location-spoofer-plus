@@ -9,7 +9,7 @@
 | `/?token=` | GET | 地图选点网页（必须带正确 token） |
 | `/loc.json?token=` | GET | 读取坐标 JSON |
 | `/set?token=` | POST | 保存坐标 |
-| `/shadowrocket.sgmodule?token=` | GET | 自动生成已绑定当前 Worker 的小火箭模块 |
+| `/shadowrocket.sgmodule?token=` | GET | 兼容旧链接；新部署推荐使用 v2 |
 | `/shadowrocket-v2.sgmodule?token=` | GET | 推荐：带当前坐标备用值的小火箭模块 |
 | `/shadowrocket-apple.sgmodule?token=` | GET | 诊断：硬编码苹果总部 |
 | `/shadowrocket-static.sgmodule?token=` | GET | 诊断：硬编码当前 KV 坐标 |

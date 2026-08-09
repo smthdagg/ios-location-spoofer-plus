@@ -1,5 +1,6 @@
 // 定位选点服务 —— 单文件、零依赖（仅用 Node 内置模块）
-// 支持：高德矢量 / 高德卫星 / 国外 OSM 多地图切换，自动 GCJ-02<->WGS-84 坐标转换
+// 支持：OSM / Carto / Esri 卫星 / OpenTopo / 高德矢量 / 高德卫星多地图切换，
+// 自动 GCJ-02<->WGS-84 坐标转换
 // 搜索显示多个候选（点选即放图钉）；点地图/拖图钉移动定位点；点“保存定位”才写入
 // 点地图自动按地形获取海拔；海拔/水平精度/垂直精度可手动微调
 // 可选自带 https（复用 3x-ui 的 acme.sh 证书）
@@ -13,8 +14,11 @@
 //   KEY=/root/cert/你的域名/privkey.pem \
 //   node server.js
 //
-// Shadowrocket 模块 argument 末尾加：
+// Node 自托管版作为远程配置源时，Shadowrocket 模块 argument 末尾加：
 //   &configUrl=https://你的域名:8443/loc.json?token=你的密码
+//
+// Cloudflare Worker 版推荐直接导入：
+//   https://你的域名/shadowrocket-v2.sgmodule?token=你的密码
 //
 // 注意：URL 必须带 ?token=<TOKEN>。缺 token → 服务端返回 401 + "missing token"；
 // token 错 → 返回 403 + "bad token"。网页端点同样适用。
@@ -25,7 +29,7 @@ const fs = require("fs");
 const path = require("path");
 
 const PORT = process.env.PORT || 8080;
-const TOKEN = process.env.TOKEN || "change-me-please"; // 部署时务必改成随机字符串
+const TOKEN = process.env.TOKEN || "";                 // 必填：部署时使用随机字符串
 const CERT = process.env.CERT || "";                   // https 证书 fullchain 路径（留空=http）
 const KEY = process.env.KEY || "";                     // https 私钥路径
 const DATA_FILE = path.join(__dirname, "loc.json");
@@ -63,7 +67,10 @@ function send(res, code, type, body) {
 
 // 区分「没传 token」和「token 传错」：前者 401 引导补 ?token=，后者 403
 function checkToken(token, res) {
-  if (!TOKEN) return true; // 没设 TOKEN 环境变量 = 不校验（仅本地开发用）
+  if (!TOKEN) {
+    send(res, 500, "application/json", '{"error":"server misconfigured: TOKEN env var is required"}');
+    return false;
+  }
   if (token == null || token === "") {
     send(res, 401, "application/json", '{"error":"missing token","hint":"add ?token=<TOKEN> to the URL (must match the TOKEN env var)"}');
     return false;
@@ -169,6 +176,10 @@ function onListenError(err) {
 }
 
 function start() {
+  if (!TOKEN) {
+    console.error("启动失败：必须设置 TOKEN 环境变量，例如 TOKEN=$(openssl rand -hex 24) PORT=8080 node server.js");
+    process.exit(1);
+  }
   if (CERT && KEY) {
     try {
       const opts = { cert: fs.readFileSync(CERT), key: fs.readFileSync(KEY) };
