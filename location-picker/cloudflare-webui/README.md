@@ -310,16 +310,30 @@ https://myloc.example.com/health
 
 ## 八、Shadowrocket 小火箭配置
 
-在小火箭模块的 `argument=` 最后追加：
+推荐直接导入 Worker 自动生成的小火箭模块：
 
 ```text
-&configUrl=https://你的域名/loc.json?token=你的TOKEN
+https://你的域名/shadowrocket.sgmodule?token=你的TOKEN
 ```
 
 如果没有自定义域名，就使用 Worker 地址：
 
 ```text
-&configUrl=https://ios-location-picker.你的账号.workers.dev/loc.json?token=你的TOKEN
+https://ios-location-picker.你的账号.workers.dev/shadowrocket.sgmodule?token=你的TOKEN
+```
+
+这个模块会自动把 `configUrl` 写成当前 Worker 的：
+
+```text
+https://你的域名/loc.json?token=你的TOKEN
+```
+
+导入后，你在网页地图点“保存定位”，小火箭脚本就会读取这个 `/loc.json`。不要再导入项目根目录那个默认 `ios-location-spoofer.sgmodule` 当最终使用模块；那个文件里的备用坐标是苹果总部，适合手动改参数，不适合网页实时更新。
+
+如果你已经导入过旧模块，也可以手动在旧模块的 `argument=` 最后追加：
+
+```text
+&configUrl=https://你的域名/loc.json?token=你的TOKEN
 ```
 
 完整示例：
@@ -432,6 +446,14 @@ https://你的域名/loc.json?token=你的TOKEN
 
 说明你还没有选择搜索结果/放置图钉并保存。
 
+如果 `/loc.json` 已经变成你选的新坐标，但 Apple 地图还是苹果总部，说明小火箭还在用旧模块或旧缓存。请在小火箭里导入：
+
+```text
+https://你的域名/shadowrocket.sgmodule?token=你的TOKEN
+```
+
+然后删除旧的 `iOS Location Spoofer` 模块，重新连接小火箭。
+
 ### 搜索后没变化
 
 搜索后要点一个候选结果；点候选结果会自动放图钉。最后仍然需要点“保存定位”写入 KV。
@@ -468,8 +490,8 @@ https://你的域名/?token=你的TOKEN
 https://你的域名/loc.json?token=你的TOKEN
 ```
 
-小火箭追加参数：
+小火箭模块导入地址：
 
 ```text
-&configUrl=https://你的域名/loc.json?token=你的TOKEN
+https://你的域名/shadowrocket.sgmodule?token=你的TOKEN
 ```

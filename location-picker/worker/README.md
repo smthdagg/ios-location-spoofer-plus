@@ -9,14 +9,9 @@
 | `/?token=` | GET | 地图选点网页（必须带正确 token） |
 | `/loc.json?token=` | GET | 读取坐标 JSON |
 | `/set?token=` | POST | 保存坐标 |
+| `/shadowrocket.sgmodule?token=` | GET | 自动生成已绑定当前 Worker 的小火箭模块 |
 | `/health` | GET | 健康检查（无需 token） |
-| 路径               | 方法 | 说明                                      |
-| ------------------ | ---- | ----------------------------------------- |
-| `/`                | GET  | 地图选点网页（URL 加 `?token=` 才能保存） |
-| `/loc.json?token=` | GET  | 读取坐标 JSON                             |
-| `/set?token=`      | POST | 保存坐标                                  |
-| `/enable`          | POST | 回到真实位置（再点一下恢复伪造）          |
-| `/health`          | GET  | 健康检查（无需 token）                    |
+| `/enable` | POST | 回到真实位置（再点一下恢复伪造） |
 
 ## 部署
 
@@ -73,11 +68,19 @@ https://ios-location-picker.你的账号.workers.dev/?token=你的TOKEN
 
 ## Shadowrocket 配置
 
-模块 `argument=` 末尾追加：
+推荐直接导入 Worker 自动生成的小火箭模块：
+
+```
+https://ios-location-picker.你的账号.workers.dev/shadowrocket.sgmodule?token=你的TOKEN
+```
+
+这个模块会自动带上正确的 `configUrl`。如果你已经导入过旧模块，也可以手动在旧模块的 `argument=` 末尾追加：
 
 ```
 &configUrl=https://ios-location-picker.你的账号.workers.dev/loc.json?token=你的TOKEN
 ```
+
+如果 `/loc.json?token=...` 已经是新坐标，但 Apple 地图还是苹果总部，通常就是小火箭仍在使用没有 `configUrl` 的旧模块。删除旧模块后重新导入上面的 `.sgmodule` 地址。
 
 ## 自定义域名（可选）
 

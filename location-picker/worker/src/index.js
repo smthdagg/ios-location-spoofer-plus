@@ -20,6 +20,9 @@ const DEFAULT = {
   verticalAccuracy: 1000,
 };
 
+const SPOOFER_SCRIPT_PATH =
+  "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
+
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -89,6 +92,24 @@ function setInt(target, key, value) {
 
 function wrapLng(lng) {
   return ((((Number(lng) + 180) % 360) + 360) % 360) - 180;
+}
+
+function moduleResponse(request, token) {
+  const url = new URL(request.url);
+  const configUrl = `${url.origin}/loc.json?token=${encodeURIComponent(token)}`;
+  return textResponse(
+    `#!name=iOS Location Spoofer
+#!desc=Apple 定位伪装。配置已绑定 ${url.origin}，网页保存后小火箭读取 /loc.json 生效。
+#!homepage=https://github.com/mekos2772/ios-location-spoofer
+
+[Script]
+iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=${SPOOFER_SCRIPT_PATH},argument=mode=response&latitude=37.3349&longitude=-122.00902&horizontalAccuracy=39&verticalAccuracy=1000&altitude=530&debug=false&configUrl=${configUrl}
+
+[MITM]
+hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
+`,
+    "text/plain; charset=utf-8"
+  );
 }
 
 export default {
@@ -165,6 +186,13 @@ export default {
         return unauthorized();
       }
       return textResponse(PAGE, "text/html; charset=utf-8");
+    }
+
+    if (url.pathname === "/shadowrocket.sgmodule" && request.method === "GET") {
+      if (!auth.ok) {
+        return unauthorized();
+      }
+      return moduleResponse(request, url.searchParams.get("token"));
     }
 
     if (url.pathname === "/health") {
