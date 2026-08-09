@@ -15,6 +15,7 @@
 | `/shadowrocket-static.sgmodule?token=` | GET | 诊断：硬编码当前 KV 坐标 |
 | `/health` | GET | 健康检查（无需 token） |
 | `/enable` | POST | 回到真实位置（再点一下恢复伪造） |
+| `/admin` | GET/POST | 管理后台：登录、生成 TOKEN、复制地图和模块地址 |
 
 ## 部署
 
@@ -36,14 +37,16 @@ npx wrangler kv namespace create LOC_KV --preview
 
 把输出的 `id` 填进 `wrangler.jsonc` 的 `id` 和 `preview_id`。
 
-### 3. 设置访问口令
+### 3. 设置后台管理员密码
 
 ```bash
-npx wrangler secret put TOKEN
-# 输入随机字符串，例如 openssl rand -hex 24 生成的值
+npx wrangler secret put ADMIN
+# 输入一串足够长的管理员密码
 ```
 
-本地开发可复制 `.dev.vars.example` 为 `.dev.vars` 并填写 `TOKEN=...`。
+新版推荐只设置 `ADMIN`，部署后进入 `/admin` 自动生成 TOKEN。旧版如果已经设置过 `TOKEN`，仍然兼容。
+
+本地开发可复制 `.dev.vars.example` 为 `.dev.vars` 并填写 `ADMIN=...`。
 
 ### 4. 部署
 
@@ -53,6 +56,21 @@ npm run deploy
 
 记下输出的地址，例如 `https://ios-location-picker.你的账号.workers.dev`。
 
+### 5. 进入管理后台
+
+打开：
+
+```text
+https://ios-location-picker.你的账号.workers.dev/admin
+```
+
+输入 `ADMIN` 管理密码，进入后台后点击“自动生成”生成 TOKEN。后台会直接给出：
+
+- 地图页面地址
+- Shadowrocket 小火箭模块地址
+- Loon `configUrl`
+- 当前坐标和健康状态
+
 ## Loon 插件配置
 
 Loon → 设置 → 插件 → iOS Location Spoofer → **远程配置 URL**：
@@ -60,6 +78,8 @@ Loon → 设置 → 插件 → iOS Location Spoofer → **远程配置 URL**：
 ```
 https://ios-location-picker.你的账号.workers.dev/loc.json?token=你的TOKEN
 ```
+
+推荐直接从 `/admin` 复制完整地址。
 
 保存后，在 iPhone 浏览器打开地图页：
 
@@ -78,6 +98,8 @@ https://ios-location-picker.你的账号.workers.dev/?token=你的TOKEN
 ```
 https://ios-location-picker.你的账号.workers.dev/shadowrocket-v2.sgmodule?token=你的TOKEN
 ```
+
+推荐直接从 `/admin` 复制完整地址，避免 token 拼错。
 
 `v2` 模块会自动带上 `configHost` / `configToken`，并把当前 KV 坐标写成备用值。远程配置短暂读取失败时，也不会回退到苹果总部。
 
