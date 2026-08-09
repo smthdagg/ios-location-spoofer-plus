@@ -10,7 +10,7 @@
 
 - **手机端照旧**：Shadowrocket 小火箭仍然负责 HTTPS 解密、安装 CA 证书、拦截 Apple 定位接口。
 - **Cloudflare 免费后台**：类似 edgetunnel 的使用方式，只需要部署 Worker / Pages、绑定 KV、设置 `ADMIN`。
-- **自动生成 TOKEN**：进入 `/admin` 后一键生成，不再让小白手动找随机字符串。
+- **首次生成 TOKEN**：进入 `/admin` 后一键生成，不再让小白手动找随机字符串；生成后日常不需要再动。
 - **自动生成小火箭模块 URL**：后台直接给出 `/shadowrocket-v2.sgmodule?token=...`。
 - **后台内置地图定位管理**：OSM、Carto、Esri 卫星、OpenTopo、高德地图、高德卫星都作为后台的一部分使用。
 - **一站式免费使用**：个人使用 Cloudflare 免费额度通常足够，无需 VPS、无需自签服务端证书。
@@ -55,7 +55,7 @@ bluedot.is.autonavi.com.gds.alibabadns.com
 https://你的域名/admin
 ```
 
-登录后点击“自动生成”，后台会生成 TOKEN，并给出：
+登录后点击“生成 TOKEN”，后台会生成 TOKEN，并给出：
 
 ```text
 地图管理地址
@@ -71,7 +71,7 @@ Plus 后台会直接内嵌地图，不需要再单独打开另一个页面。
 使用顺序：
 
 1. 进入 `/admin`。
-2. 点击“自动生成”生成 TOKEN。
+2. 首次使用时点击“生成 TOKEN”。
 3. 后台地图自动出现。
 4. 搜索地点并点候选，或直接点地图放置图钉。
 5. 点击“保存定位”。
@@ -124,6 +124,7 @@ location-picker/server.js               # Node 自托管版，保留给 VPS/NAS 
 - `/admin` 需要 `ADMIN` 管理密码。
 - 用户访问地图和模块需要 TOKEN。
 - 新版 TOKEN 优先保存在 KV，旧版 `TOKEN` Secret 仍然兼容。
+- 后台不会鼓励反复改 TOKEN；如需更换，使用“重新生成 TOKEN 并重置所有参数”，旧模块 URL 会失效，定位参数会恢复默认。
 - 不要把配置服务器域名加入 Shadowrocket HTTPS 解密列表。
 - 如果开代理更新模块时 TLS 报错，给你的 Cloudflare 域名加 `DIRECT` 规则。
 

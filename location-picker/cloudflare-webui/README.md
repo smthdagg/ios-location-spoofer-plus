@@ -1,12 +1,12 @@
 # iOS Location Spoofer Plus — Cloudflare 网页部署
 
-这是 Plus 版推荐给新手的免费部署方式。它的目标是像 edgetunnel 一样：部署完成后进入 `/admin`，后台自动生成 TOKEN、生成小火箭模块 URL，并直接提供地图定位管理。
+这是 Plus 版推荐给新手的免费部署方式。它的目标是像 edgetunnel 一样：部署完成后进入 `/admin`，后台首次生成 TOKEN、生成小火箭模块 URL，并直接提供地图定位管理。
 
 ## 你最终会得到什么
 
 - 一个免费 Cloudflare 后台。
 - 一个 `/admin` 管理页面。
-- 自动生成的 TOKEN。
+- 首次生成的 TOKEN。
 - 自动生成的 Shadowrocket 小火箭模块 URL。
 - 内嵌地图定位管理：OSM、Carto、Esri 卫星、OpenTopo、高德地图、高德卫星。
 
@@ -98,7 +98,7 @@ https://你的域名/admin
 
 输入 `ADMIN` 后进入后台。
 
-第一次进入时点“自动生成”，后台会把 TOKEN 保存到 KV，并生成：
+第一次进入时点“生成 TOKEN”，后台会把 TOKEN 保存到 KV，并生成：
 
 ```text
 地图管理地址
@@ -152,7 +152,9 @@ https://你的域名/health
 {"ok":true,"kv":true,"tokenConfigured":true,"adminConfigured":true}
 ```
 
-如果 `tokenConfigured` 是 `false`，进入 `/admin` 点“自动生成”。
+如果 `tokenConfigured` 是 `false`，进入 `/admin` 点“生成 TOKEN”。
+
+TOKEN 生成后日常不需要再操作。后台只保留“重新生成 TOKEN 并重置所有参数”，用于需要废弃旧模块 URL、恢复默认定位参数的情况。
 
 ## 常见问题
 

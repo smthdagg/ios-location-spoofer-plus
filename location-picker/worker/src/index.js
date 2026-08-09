@@ -166,7 +166,7 @@ li{margin:8px 0}
 <li>绑定 KV，变量名必须是 <code>LOC_KV</code>：<span class="${env.LOC_KV ? "ok" : "bad"}">${env.LOC_KV ? "已检测到" : "未检测到"}</span></li>
 <li>添加管理员密码，变量名必须是 <code>ADMIN</code>：<span class="${env.ADMIN ? "ok" : "bad"}">${env.ADMIN ? "已检测到" : "未检测到"}</span></li>
 </ol>
-<p>保存配置后，重新部署一次，再打开 <code>/admin</code>。进入后台后可以自动生成 TOKEN、复制地图地址和小火箭模块地址。</p>
+<p>保存配置后，重新部署一次，再打开 <code>/admin</code>。进入后台后首次生成 TOKEN，之后如需更换 TOKEN 可一键重置全部参数。</p>
 </body>
 </html>`, "text/html; charset=utf-8", 503);
 }
@@ -236,9 +236,10 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 </div>
 <div class="card">
 <h2>TOKEN</h2>
-<input id="token" class="mono" placeholder="还没有 TOKEN，点下面生成">
-<button id="saveToken">保存 TOKEN</button>
-<button id="genToken" class="secondary">自动生成</button>
+<input id="token" class="mono" readonly placeholder="还没有 TOKEN，点下面生成">
+<button id="genToken">生成 TOKEN</button>
+<button id="resetToken" class="danger" style="display:none">重新生成 TOKEN 并重置所有参数</button>
+<div class="muted" id="tokenHint">首次安装时生成一次即可。</div>
 </div>
 <div class="card">
 <h2>当前坐标</h2>
@@ -274,6 +275,11 @@ async function load(){
   if(!r.ok){ document.getElementById('status').textContent='后台会话已失效，请刷新重新登录'; return; }
   const d = await r.json();
   document.getElementById('token').value = d.token || '';
+  document.getElementById('genToken').style.display = d.tokenConfigured ? 'none' : 'inline-block';
+  document.getElementById('resetToken').style.display = d.tokenConfigured ? 'inline-block' : 'none';
+  document.getElementById('tokenHint').textContent = d.tokenConfigured
+    ? 'TOKEN 已生成。日常使用不用改；重新生成会让旧模块 URL 失效，并把定位参数恢复默认。'
+    : '首次安装时生成一次即可，后台会保存到 KV。';
   document.getElementById('status').innerHTML =
     'KV：<span class="'+(d.kv?'ok':'bad')+'">'+(d.kv?'正常':'未绑定')+'</span><br>'+
     'TOKEN：<span class="'+(d.tokenConfigured?'ok':'bad')+'">'+(d.tokenConfigured?'已配置':'未生成')+'</span><br>'+
@@ -294,18 +300,19 @@ async function load(){
     hint.textContent = '生成 TOKEN 后，地图会自动加载在这里。';
   }
 }
-async function saveToken(token){
-  const r = await fetch('/admin/token', {
+async function resetToken(confirmReset){
+  if(confirmReset && !confirm('将重新生成 TOKEN，并把坐标、海拔、精度恢复默认。旧的小火箭模块 URL 会失效，确定继续？')) return;
+  const r = await fetch('/admin/reset-token', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({token})
+    body:JSON.stringify({reset: !!confirmReset})
   });
   const d = await r.json();
-  if(!r.ok){ alert(d.error || '保存失败'); return; }
+  if(!r.ok){ alert(d.error || '操作失败'); return; }
   await load();
 }
-document.getElementById('genToken').onclick = () => saveToken('');
-document.getElementById('saveToken').onclick = () => saveToken(document.getElementById('token').value.trim());
+document.getElementById('genToken').onclick = () => resetToken(false);
+document.getElementById('resetToken').onclick = () => resetToken(true);
 document.querySelectorAll('[data-copy]').forEach(btn => btn.onclick = async () => {
   const text = document.getElementById(btn.dataset.copy).textContent;
   await navigator.clipboard.writeText(text);
@@ -469,7 +476,7 @@ export default {
       });
     }
 
-    if (url.pathname === "/admin/token" && request.method === "POST") {
+    if ((url.pathname === "/admin/token" || url.pathname === "/admin/reset-token") && request.method === "POST") {
       if (!(await isAdmin(request, env))) {
         return unauthorized("admin login required");
       }
@@ -482,12 +489,17 @@ export default {
           return jsonResponse({ error: "payload too large" }, 413);
         }
         const body = bodyText ? JSON.parse(bodyText) : {};
-        const token = String(body.token || randomHex(24)).trim();
+        const token = url.pathname === "/admin/token"
+          ? String(body.token || randomHex(24)).trim()
+          : randomHex(24);
         if (!/^[A-Za-z0-9._~:-]{16,128}$/.test(token)) {
           return jsonResponse({ error: "TOKEN 必须是 16-128 位，只能包含字母、数字和 . _ ~ : -" }, 400);
         }
         await env.LOC_KV.put(TOKEN_KEY, token);
-        return jsonResponse({ ok: true, token });
+        if (url.pathname === "/admin/reset-token" && body.reset === true) {
+          await writeLoc(env, { ...DEFAULT });
+        }
+        return jsonResponse({ ok: true, token, reset: url.pathname === "/admin/reset-token" && body.reset === true });
       } catch {
         return jsonResponse({ error: "bad json" }, 400);
       }

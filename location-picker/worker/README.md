@@ -43,7 +43,7 @@ npx wrangler secret put ADMIN
 
 输入一个足够长的后台管理密码。
 
-新版不要求手动设置 `TOKEN`。进入 `/admin` 后后台会自动生成 TOKEN 并保存到 KV。旧部署如果已经设置过 `TOKEN` Secret，仍然兼容。
+新版不要求手动设置 `TOKEN`。进入 `/admin` 后首次生成 TOKEN 并保存到 KV。旧部署如果已经设置过 `TOKEN` Secret，仍然兼容。
 
 ### 4. 部署
 
@@ -65,7 +65,7 @@ https://ios-location-spoofer-plus.你的账号.workers.dev/admin
 
 ## Plus 后台
 
-登录 `/admin` 后点击“自动生成”，后台会给出：
+登录 `/admin` 后点击“生成 TOKEN”，后台会给出：
 
 - Shadowrocket 小火箭模块 URL
 - Loon `configUrl`
@@ -74,6 +74,8 @@ https://ios-location-spoofer-plus.你的账号.workers.dev/admin
 - KV / TOKEN / ADMIN 状态
 
 后台下方会直接内嵌地图，可直接搜索、点选、保存定位。
+
+TOKEN 生成后日常不需要再操作。后台只保留“重新生成 TOKEN 并重置所有参数”，用于需要废弃旧模块 URL、恢复默认定位参数的情况。
 
 ## Shadowrocket
 
