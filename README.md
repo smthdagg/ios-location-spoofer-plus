@@ -1,6 +1,9 @@
 # iOS Location Spoofer Plus
 
-中文完整教程在首页展开。English users can jump to [English Overview](#english-overview).
+## Language / 语言
+
+- [中文完整教程](#完整中文教程)
+- [Full English Guide](#full-english-guide)
 
 免费的一站式 iPhone 定位管理项目。手机端使用支持 HTTPS 解密的代理工具拦截 Apple 定位响应，Cloudflare 端提供 Plus 管理后台：首次生成 TOKEN、生成 Shadowrocket / Surge / Loon / Quantumult X / Stash 模块 URL、直接在地图上保存定位。
 
@@ -388,25 +391,303 @@ Copyright © 2026 SMTH DAGG.
 
 ---
 
-## English Overview
+## Full English Guide
 
-`iOS Location Spoofer Plus` is a free all-in-one iPhone location management project. Supported proxy tools handle HTTPS decryption on iPhone, while Cloudflare hosts the Plus admin dashboard for one-time TOKEN generation, Shadowrocket / Surge / Loon / Quantumult X / Stash module URL generation, and map-based location management.
+`iOS Location Spoofer Plus` is a free iPhone location management project. It turns a manually edited location spoofing module into a Cloudflare-hosted admin dashboard.
 
-For the full English manual, see [PROJECT_MANUAL.md](PROJECT_MANUAL.md).
+The iPhone side handles HTTPS decryption. The Cloudflare side handles:
 
-### English Quick Start
+- TOKEN generation
+- Shadowrocket / Surge / Loon / Quantumult X / Stash module URL generation
+- Location storage in KV
+- Map-based location picking
+- Diagnostics and health checks
 
-1. Upload the Plus zip to Cloudflare or paste the single-file Worker.
-2. Bind KV as `LOC_KV`.
-3. Set Secret `ADMIN`.
-4. Open `https://your-domain/admin`.
-5. Click “Generate TOKEN” once.
-6. Copy the generated module URL for Shadowrocket, Surge, Loon, Quantumult X, or Stash.
-7. Enable HTTPS decryption in your proxy tool and fully trust its CA certificate.
-8. Pick a location on the admin map and save it.
-9. Toggle iPhone Location Services off and on.
+![Plus Admin Dashboard](docs/assets/admin-dashboard.png)
 
-### Copyright And Legal Notice
+### 1. Project Flow
+
+```text
+iPhone proxy tool
+  -> Enable HTTPS decryption
+  -> Install and trust the CA certificate
+  -> Import the Plus-generated module for your client
+  -> Intercept Apple location responses
+
+Cloudflare Plus Dashboard
+  -> Log in to /admin
+  -> Generate TOKEN
+  -> Generate multi-client module URLs
+  -> Pick a location and save it to KV
+
+iPhone
+  -> Toggle Location Services off and on
+  -> Apple Maps / Weather / system location reads the new coordinates
+```
+
+### 2. iPhone Setup
+
+#### 2.1 Install A Proxy Tool
+
+You need an iPhone and a proxy tool that supports HTTPS decryption and script rewriting. Plus currently generates URLs for Shadowrocket, Surge, Loon, Quantumult X, and Stash. Shadowrocket is used as the detailed example below.
+
+#### 2.2 Import The Plus-Generated Module
+
+Plus does not recommend importing the upstream static module directly. The correct flow is to deploy Cloudflare first, generate TOKEN in `/admin`, and copy the generated module URL for your client. Shadowrocket example:
+
+```text
+https://your-domain/shadowrocket-v2.sgmodule?token=GENERATED_TOKEN
+```
+
+Shadowrocket steps:
+
+1. Config -> Modules.
+2. Delete old test modules, old Plus modules, or upstream base modules.
+3. Tap `+`.
+4. Choose URL import.
+5. Paste the Plus-generated module URL.
+6. Save and enable it.
+
+After that, you do not need to re-import the module when changing locations. Save the new coordinates in the Plus dashboard instead.
+
+Other clients:
+
+- Surge: copy `surge.sgmodule`.
+- Loon: copy `loon.lnplugin`; `loc.json` can be used as configUrl for troubleshooting.
+- Stash: copy `stash.stoverride`.
+- Quantumult X: copy `quantumultx.snippet`. QX uses a static snippet generated from the current coordinates, so re-import or refresh it after changing locations in the dashboard.
+
+#### 2.3 Enable HTTPS Decryption
+
+In Shadowrocket, enable HTTPS decryption and make sure these MITM hostnames are included:
+
+```text
+gs-loc.apple.com
+gs-loc-cn.apple.com
+bluedot.is.autonavi.com
+bluedot.is.autonavi.com.gds.alibabadns.com
+```
+
+#### 2.4 Install And Trust The CA Certificate
+
+You must complete both steps:
+
+1. Generate and install the CA certificate in Shadowrocket.
+2. iPhone Settings -> General -> About -> Certificate Trust Settings -> fully trust the certificate.
+
+If the certificate is not fully trusted, the module may import correctly but location spoofing will not work.
+
+### 3. Cloudflare Installation
+
+#### 3.1 Recommended: Pages Zip Upload
+
+Maintainers can build the zip package:
+
+```bash
+location-picker/cloudflare-webui/build-pages-zip.sh
+```
+
+Output:
+
+```text
+location-picker/cloudflare-webui/dist/ios-location-spoofer-plus-cloudflare.zip
+```
+
+Cloudflare steps:
+
+1. Open Cloudflare Dashboard.
+2. Go to `Workers & Pages`.
+3. Click `Create application`.
+4. Choose `Pages`.
+5. Choose `Upload assets` / `Direct Upload`.
+6. Upload `ios-location-spoofer-plus-cloudflare.zip`.
+7. Wait for deployment.
+
+#### 3.2 Alternative: Worker Single-File Paste
+
+1. Cloudflare -> `Workers & Pages` -> `Create application`.
+2. Choose `Worker`.
+3. Open `Edit code`.
+4. Delete the default Hello World code.
+5. Paste:
+
+```text
+location-picker/cloudflare-webui/worker.js
+```
+
+6. Click `Deploy`.
+
+#### 3.3 Bind KV
+
+Create and bind a KV namespace. The binding name must be:
+
+```text
+LOC_KV
+```
+
+KV stores:
+
+- Current location
+- TOKEN
+- Admin sessions
+
+#### 3.4 Set ADMIN
+
+Add a Secret:
+
+```text
+ADMIN
+```
+
+`ADMIN` is the password for `/admin`. Redeploy after saving it.
+
+### 4. Dashboard Usage
+
+Open:
+
+```text
+https://your-domain/admin
+```
+
+Log in with `ADMIN`.
+
+On first use, click “Generate TOKEN”. The dashboard will show:
+
+- Map URL
+- Shadowrocket module URL
+- Surge module URL
+- Loon plugin URL / configUrl
+- Quantumult X snippet URL
+- Stash override URL
+- Current coordinates
+- KV / TOKEN status
+
+After TOKEN is generated, you normally do not need to touch it again. Use “Regenerate TOKEN and reset all parameters” only when you want to invalidate old module URLs and restore default location settings.
+
+![Multi-Client Module URLs](docs/assets/proxy-modules.png)
+
+### 5. Import Proxy Tool Module
+
+Copy the module URL for your client from the dashboard. Shadowrocket example:
+
+```text
+https://your-domain/shadowrocket-v2.sgmodule?token=GENERATED_TOKEN
+```
+
+Shadowrocket steps:
+
+1. Config -> Modules.
+2. Delete old test modules, old Plus modules, or upstream base modules.
+3. Tap `+`.
+4. Choose URL import.
+5. Paste the generated module URL.
+6. Save and enable it.
+
+You do not need to update the module repeatedly for normal location changes. Shadowrocket, Surge, Loon, and Stash read the latest coordinates from `/loc.json` through `configHost` / `configToken`. Quantumult X currently uses a static snippet, so re-import or refresh it after changing locations.
+
+If module updates fail with TLS errors while proxy is enabled, add direct rules:
+
+```text
+DOMAIN,your-domain,DIRECT
+DOMAIN-SUFFIX,workers.dev,DIRECT
+```
+
+Do not add the Cloudflare dashboard domain to the HTTPS decryption list.
+
+### 6. Map Location Manager
+
+![Map Location Manager](docs/assets/location-map.png)
+
+Supported layers:
+
+- OSM
+- Carto Light
+- Esri Satellite
+- OpenTopo
+- Amap vector
+- Amap satellite
+
+Steps:
+
+1. Search a place and click a result, or click directly on the map.
+2. A marker appears.
+3. Adjust altitude, horizontal accuracy, and vertical accuracy.
+4. Click “Save Location”.
+5. Toggle iPhone Location Services off and on.
+
+Notes:
+
+- You must place a marker before saving.
+- Toggle Location Services after saving.
+- Amap is best for mainland China, Hong Kong, Macau, and Taiwan. For overseas locations, use OSM / Carto / Esri / OpenTopo.
+
+### 7. Debugging
+
+#### 7.1 Check Cloudflare
+
+Open:
+
+```text
+https://your-domain/health
+```
+
+Expected:
+
+```json
+{"ok":true,"kv":true,"tokenConfigured":true,"adminConfigured":true}
+```
+
+#### 7.2 Check loc.json
+
+Open:
+
+```text
+https://your-domain/loc.json?token=YOUR_TOKEN
+```
+
+If it shows the new coordinates, the dashboard saved correctly.
+
+#### 7.3 Check The Proxy Tool
+
+Verify:
+
+1. The module is enabled.
+2. HTTPS decryption is enabled.
+3. The CA certificate is fully trusted.
+4. MITM hostnames are complete.
+5. The imported module is the Plus-generated module for your client.
+
+#### 7.4 Diagnostic Modules
+
+```text
+https://your-domain/shadowrocket-apple.sgmodule?token=YOUR_TOKEN
+https://your-domain/shadowrocket-static.sgmodule?token=YOUR_TOKEN
+```
+
+- `apple`: hardcoded Apple Park.
+- `static`: hardcoded current KV coordinates.
+
+If neither works, the problem is usually HTTPS decryption, certificate trust, or module activation.
+
+### 8. FAQ
+
+#### Map page returns 403
+
+The TOKEN is wrong. Copy the full URL from `/admin`.
+
+#### Amap is blank
+
+For overseas locations, switch to OSM, Carto, Esri, or OpenTopo.
+
+#### Apple Maps does not change
+
+Toggle iPhone Location Services off and on. If needed, force close and reopen Maps.
+
+#### Time zone does not follow
+
+iPhone time zone may be affected by SIM carrier information. Disabling SIM can make the spoofed location easier to take effect.
+
+### 9. Copyright And Legal Notice
 
 Copyright © 2026 SMTH DAGG.
 
