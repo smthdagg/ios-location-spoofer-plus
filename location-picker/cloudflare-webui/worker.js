@@ -300,11 +300,11 @@ function wrapLng(lng) {
   return ((((Number(lng) + 180) % 360) + 360) % 360) - 180;
 }
 
-function moduleResponse(request, token) {
+function moduleResponse(request, token, includeBody = true) {
   const url = new URL(request.url);
   const configUrl = `${url.origin}/loc.json?token=${encodeURIComponent(token)}`;
   return textResponse(
-    `#!name=iOS Location Spoofer
+    includeBody ? `#!name=iOS Location Spoofer
 #!desc=Apple 定位伪装。配置已绑定 ${url.origin}，网页保存后小火箭读取 /loc.json 生效。
 #!homepage=https://github.com/mekos2772/ios-location-spoofer
 
@@ -313,7 +313,7 @@ iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)
 
 [MITM]
 hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
-`,
+` : "",
     "text/plain; charset=utf-8"
   );
 }
@@ -373,11 +373,11 @@ export default {
       return textResponse(PAGE, "text/html; charset=utf-8");
     }
 
-    if (url.pathname === "/shadowrocket.sgmodule" && request.method === "GET") {
+    if (url.pathname === "/shadowrocket.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
       if (!auth.ok) {
         return unauthorized();
       }
-      return moduleResponse(request, url.searchParams.get("token"));
+      return moduleResponse(request, url.searchParams.get("token"), request.method === "GET");
     }
 
     if (url.pathname === "/health") {
