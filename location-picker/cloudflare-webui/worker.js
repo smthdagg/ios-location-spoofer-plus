@@ -160,18 +160,33 @@ function load(){
 
     var amapVec=L.tileLayer("https://wprd0{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",{subdomains:"1234",maxZoom:18,attribution:"高德地图"});
     amapVec.datum="gcj";
-    var amapSat=L.layerGroup([
-      L.tileLayer("https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",{subdomains:"1234",maxZoom:18}),
-      L.tileLayer("https://wprd0{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=8",{subdomains:"1234",maxZoom:18})
-    ]);
+    var amapSatBase=L.tileLayer("https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",{subdomains:"1234",maxZoom:18});
+    var amapSatLabel=L.tileLayer("https://wprd0{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=8",{subdomains:"1234",maxZoom:18});
+    var amapSat=L.layerGroup([amapSatBase,amapSatLabel]);
     amapSat.datum="gcj";
     var osm=L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"});
     osm.datum="wgs";
 
+    function fallbackToOsm(){
+      if(!map || datum==="wgs") return;
+      if(map.hasLayer(amapVec)) map.removeLayer(amapVec);
+      if(map.hasLayer(amapSat)) map.removeLayer(amapSat);
+      if(!map.hasLayer(osm)) osm.addTo(map);
+      datum="wgs";
+      var p=dispPos();
+      if(marker) marker.setLatLng(p);
+      map.setView(p,map.getZoom());
+      info();
+      toast("高德底图加载失败，已切换 OSM");
+    }
+    amapVec.on("tileerror",fallbackToOsm);
+    amapSatBase.on("tileerror",fallbackToOsm);
+    amapSatLabel.on("tileerror",fallbackToOsm);
+
     map=L.map("map");
-    amapVec.addTo(map); datum="gcj";
+    osm.addTo(map); datum="wgs";
     map.setView(dispPos(),13);
-    L.control.layers({"高德地图":amapVec,"高德卫星":amapSat,"国外 OSM":osm},null,{collapsed:false}).addTo(map);
+    L.control.layers({"OSM 地图":osm,"高德地图":amapVec,"高德卫星":amapSat},null,{collapsed:false}).addTo(map);
 
     marker=L.marker(dispPos(),{draggable:true}).addTo(map);
     info();
