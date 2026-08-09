@@ -101,6 +101,10 @@ https://ios-location-picker.你的账号.workers.dev/shadowrocket-static.sgmodul
 
 在 Cloudflare Dashboard → Workers → 你的 Worker → Settings → Domains 绑定子域即可，例如 `loc.example.com`。
 
+## 地图底图说明
+
+页面默认使用 `OSM 地图`，适合全球坐标。高德地图和高德卫星有时会因为地区、网络线路、代理或服务端风控变成空白。遇到空白时可切换 `OSM 地图`、`Carto 浅色`、`Esri 卫星`、`OpenTopo 地形`；定位功能不依赖高德底图。
+
 ## 与 Node 版差异
 
 - 数据存在 **KV**（非本地文件），个人用量免费额度足够

@@ -397,6 +397,12 @@ function load(){
     amapSat.datum="gcj";
     var osm=L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"});
     osm.datum="wgs";
+    var carto=L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:20,attribution:"© OpenStreetMap © CARTO"});
+    carto.datum="wgs";
+    var esriSat=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Tiles © Esri"});
+    esriSat.datum="wgs";
+    var topo=L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",{subdomains:"abc",maxZoom:17,attribution:"© OpenTopoMap"});
+    topo.datum="wgs";
 
     function fallbackToOsm(){
       if(!map || datum==="wgs") return;
@@ -417,7 +423,7 @@ function load(){
     map=L.map("map");
     osm.addTo(map); datum="wgs";
     map.setView(dispPos(),13);
-    L.control.layers({"OSM 地图":osm,"高德地图":amapVec,"高德卫星":amapSat},null,{collapsed:false}).addTo(map);
+    L.control.layers({"OSM 地图":osm,"Carto 浅色":carto,"Esri 卫星":esriSat,"OpenTopo 地形":topo,"高德地图":amapVec,"高德卫星":amapSat},null,{collapsed:false}).addTo(map);
 
     marker=L.marker(dispPos(),{draggable:true}).addTo(map);
     updateEnabledUI();
