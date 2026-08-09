@@ -128,6 +128,15 @@ location-picker/server.js               # Node 自托管版，保留给 VPS/NAS 
 - 不要把配置服务器域名加入 Shadowrocket HTTPS 解密列表。
 - 如果开代理更新模块时 TLS 报错，给你的 Cloudflare 域名加 `DIRECT` 规则。
 
+## 版本与版权
+
+- 当前版本：`0.2.1-plus`
+- 开发者：SMTH DAGG
+- GitHub：[smthdagg/ios-location-spoofer](https://github.com/smthdagg/ios-location-spoofer)
+- 上游参考：[mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)
+
+本项目仅供个人研究、测试和合法教育用途。使用者必须自行遵守所在地法律法规、平台条款、运营商规则与第三方服务规则。禁止用于欺诈、骚扰、规避执法、未授权访问或任何违法用途。项目按现状提供，不提供任何担保。
+
 ## 生效提醒
 
 保存定位后，iPhone 不一定立刻重新请求定位。请关闭一次 **设置 → 隐私与安全性 → 定位服务**，等 10 秒再打开；必要时重复几次，并重开地图 App。

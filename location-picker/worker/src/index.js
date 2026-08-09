@@ -26,6 +26,10 @@ const DEFAULT = {
 
 const SPOOFER_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
+const APP_VERSION = "0.2.1-plus";
+const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer";
+const UPSTREAM_REPO = "https://github.com/mekos2772/ios-location-spoofer";
+const DEVELOPER_NAME = "SMTH DAGG";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -207,28 +211,45 @@ function adminPage() {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>iOS Location Spoofer Plus 管理后台</title>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;background:#f6f8fa;color:#1f2328}
-main{max-width:960px;margin:0 auto;padding:24px 16px 48px}
-.top{display:flex;justify-content:space-between;gap:12px;align-items:center}
-h1{font-size:24px;margin:0 0 6px}.muted{color:#656d76}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:18px}
-.card{background:#fff;border:1px solid #d8dee4;border-radius:10px;padding:16px}
-.card h2{font-size:17px;margin:0 0 12px}
-input,button{font-size:15px;border-radius:8px}
-input{box-sizing:border-box;width:100%;border:1px solid #d0d7de;padding:10px;margin:6px 0 10px}
-button{border:0;background:#0969da;color:#fff;padding:10px 13px;font-weight:700;margin:4px 6px 4px 0}
-button.secondary{background:#57606a}button.danger{background:#cf222e}
-code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-.url{word-break:break-all;background:#f6f8fa;border:1px solid #d8dee4;border-radius:8px;padding:10px;margin:8px 0}
-.ok{color:#1a7f37;font-weight:700}.bad{color:#d1242f;font-weight:700}
+:root{color-scheme:light;--bg:#f4f7fb;--panel:#fff;--line:#dbe3ee;--text:#111827;--muted:#667085;--blue:#0f6bff;--green:#15803d;--red:#dc2626;--soft:#f8fafc}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:radial-gradient(circle at top left,#eaf2ff 0,#f6f8fb 38%,#eef2f7 100%);color:var(--text)}
+main{max-width:1180px;margin:0 auto;padding:28px 18px 38px}
+.hero{background:linear-gradient(135deg,#101828 0%,#1d4ed8 58%,#06b6d4 100%);border-radius:18px;padding:26px;color:#fff;box-shadow:0 18px 45px rgba(15,23,42,.18);display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.brand{display:flex;gap:14px;align-items:flex-start}.logo{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:26px;font-weight:900}
+h1{font-size:30px;line-height:1.1;margin:0 0 8px}.subtitle{max-width:720px;color:#dbeafe;font-size:16px;line-height:1.55}.hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.14);color:#fff;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}.link-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+.card h2{font-size:18px;margin:0 0 13px;letter-spacing:.01em}.muted{color:var(--muted);line-height:1.55}.small{font-size:13px}
+input,button{font-size:15px;border-radius:10px}
+input{width:100%;border:1px solid var(--line);padding:11px 12px;margin:5px 0 12px;background:#fff;color:var(--text)}
+button{border:0;background:var(--blue);color:#fff;padding:11px 15px;font-weight:800;margin:4px 8px 4px 0;box-shadow:0 8px 18px rgba(15,107,255,.2);cursor:pointer}
+button:hover{filter:brightness(.97)}button.secondary{background:#475467;box-shadow:none}button.danger{background:var(--red);box-shadow:0 8px 18px rgba(220,38,38,.2)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.url{word-break:break-all;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:70px;margin:8px 0 12px;line-height:1.45;color:#1f2937}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 9px;font-size:13px;font-weight:800;margin:0 4px 6px 0}.badge.ok{background:#dcfce7;color:var(--green)}.badge.bad{background:#fee2e2;color:var(--red)}
+.status-line{margin:7px 0}.map-card{margin-top:18px;padding:18px}.map-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:10px}
+#mapFrame{display:none;width:100%;height:min(76vh,760px);border:1px solid var(--line);border-radius:14px;background:#fff}
+.footer{margin-top:22px;padding:18px;color:#667085;font-size:13px;line-height:1.6}.footer a{color:#175cd3;text-decoration:none;font-weight:700}.legal{margin-top:8px;border-top:1px solid var(--line);padding-top:10px}
+@media (max-width:900px){.hero{display:block}.hero-actions{justify-content:flex-start;margin-top:16px}.grid,.link-grid{grid-template-columns:1fr}h1{font-size:25px}main{padding:14px}.map-head{display:block}#mapFrame{height:70vh}}
 </style>
 </head>
 <body>
 <main>
-<div class="top">
-<div><h1>iOS Location Spoofer Plus</h1><div class="muted">免费 Cloudflare 一站式定位后台：生成 TOKEN、复制模块、直接管理地图定位。</div></div>
+<section class="hero">
+<div class="brand">
+<div class="logo">LP</div>
+<div>
+<h1>iOS Location Spoofer Plus</h1>
+<div class="subtitle">免费 Cloudflare 一站式定位后台：首次生成 TOKEN、复制小火箭模块、直接管理地图定位。</div>
+</div>
+</div>
+<div class="hero-actions">
+<span class="pill">Version ${APP_VERSION}</span>
+<span class="pill">Developer ${DEVELOPER_NAME}</span>
 <form method="post" action="/admin/logout"><button class="secondary" type="submit">退出</button></form>
 </div>
+</section>
 <section class="grid">
 <div class="card">
 <h2>状态</h2>
@@ -263,11 +284,21 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 <button data-copy="loonUrl">复制 configUrl</button>
 </div>
 </section>
-<section class="card" style="margin-top:14px">
+<section class="card map-card">
+<div class="map-head">
+<div>
 <h2>定位管理地图</h2>
 <div class="muted" id="mapHint">生成 TOKEN 后，地图会自动加载在这里。必须在地图上点一下或点搜索结果放置图钉，再点“保存定位”。手机定位服务也需要关闭一次再开启。</div>
-<iframe id="mapFrame" title="定位管理地图" style="display:none;width:100%;height:680px;border:1px solid #d8dee4;border-radius:8px;margin-top:10px;background:#fff"></iframe>
+</div>
+<span class="pill" style="background:#eef4ff;color:#175cd3;border-color:#c7d7fe">OSM / Carto / Esri / OpenTopo / 高德</span>
+</div>
+<iframe id="mapFrame" title="定位管理地图"></iframe>
 </section>
+<footer class="footer card">
+<div><strong>iOS Location Spoofer Plus</strong> v${APP_VERSION} · Developer: <strong>${DEVELOPER_NAME}</strong></div>
+<div>GitHub: <a href="${PROJECT_REPO}" target="_blank" rel="noreferrer">SMTH DAGG / ios-location-spoofer</a> · Upstream: <a href="${UPSTREAM_REPO}" target="_blank" rel="noreferrer">mekos2772 / ios-location-spoofer</a></div>
+<div class="legal">Copyright © 2026 ${DEVELOPER_NAME}. This project is provided for personal research, testing, and lawful educational use only. You are responsible for complying with local laws, platform terms, carrier policies, and third-party service rules. Do not use it for fraud, harassment, unauthorized access, evasion of enforcement, or any illegal purpose. No warranty is provided.</div>
+</footer>
 </main>
 <script>
 async function load(){
@@ -281,9 +312,9 @@ async function load(){
     ? 'TOKEN 已生成。日常使用不用改；重新生成会让旧模块 URL 失效，并把定位参数恢复默认。'
     : '首次安装时生成一次即可，后台会保存到 KV。';
   document.getElementById('status').innerHTML =
-    'KV：<span class="'+(d.kv?'ok':'bad')+'">'+(d.kv?'正常':'未绑定')+'</span><br>'+
-    'TOKEN：<span class="'+(d.tokenConfigured?'ok':'bad')+'">'+(d.tokenConfigured?'已配置':'未生成')+'</span><br>'+
-    '当前域名：<span class="mono">'+d.origin+'</span>';
+    '<div class="status-line">KV <span class="badge '+(d.kv?'ok':'bad')+'">'+(d.kv?'正常':'未绑定')+'</span></div>'+
+    '<div class="status-line">TOKEN <span class="badge '+(d.tokenConfigured?'ok':'bad')+'">'+(d.tokenConfigured?'已配置':'未生成')+'</span></div>'+
+    '<div class="status-line small muted">当前域名</div><div class="mono">'+d.origin+'</div>';
   document.getElementById('loc').textContent =
     d.loc.latitude + ', ' + d.loc.longitude + ' / 海拔 ' + d.loc.altitude + 'm';
   document.getElementById('mapUrl').textContent = d.urls.map;
