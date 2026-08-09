@@ -313,40 +313,34 @@ https://myloc.example.com/health
 推荐直接导入 Worker 自动生成的小火箭模块：
 
 ```text
-https://你的域名/shadowrocket.sgmodule?token=你的TOKEN
+https://你的域名/shadowrocket-v2.sgmodule?token=你的TOKEN
 ```
 
 如果没有自定义域名，就使用 Worker 地址：
 
 ```text
-https://ios-location-picker.你的账号.workers.dev/shadowrocket.sgmodule?token=你的TOKEN
+https://ios-location-picker.你的账号.workers.dev/shadowrocket-v2.sgmodule?token=你的TOKEN
 ```
 
-这个模块会自动把 `configUrl` 写成当前 Worker 的：
+`v2` 模块会自动写入：
 
 ```text
-https://你的域名/loc.json?token=你的TOKEN
+configHost=https://你的域名
+configToken=你的TOKEN
 ```
 
-导入后，你在网页地图点“保存定位”，小火箭脚本就会读取这个 `/loc.json`。不要再导入项目根目录那个默认 `ios-location-spoofer.sgmodule` 当最终使用模块；那个文件里的备用坐标是苹果总部，适合手动改参数，不适合网页实时更新。
+同时它会把当前 `/loc.json` 里的坐标写成模块内置备用值。即使小火箭临时读不到远程配置，也不会回退到苹果总部。
 
-如果你已经导入过旧模块，也可以手动在旧模块的 `argument=` 最后追加：
+导入后，你在网页地图点“保存定位”，小火箭脚本就会读取同一个 Worker 的 `/loc.json`。不要再导入项目根目录那个默认 `ios-location-spoofer.sgmodule` 当最终使用模块；那个文件里的备用坐标是苹果总部，适合手动改参数，不适合网页实时更新。
+
+如果你开代理更新模块时遇到 TLS 错误，请把配置服务器域名设置为直连。例如：
 
 ```text
-&configUrl=https://你的域名/loc.json?token=你的TOKEN
+DOMAIN,你的域名,DIRECT
+DOMAIN-SUFFIX,workers.dev,DIRECT
 ```
 
-完整示例：
-
-```ini
-[Script]
-iOS Location Spoofer = type=http-response,pattern=^https?:\/\/(?:gs-loc(?:-cn)?\.apple\.com|bluedot\.is\.autonavi\.com(?:\.gds\.alibabadns\.com)?)\/clls\/wloc(?:\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js,argument=mode=response&latitude=37.3349&longitude=-122.00902&horizontalAccuracy=39&verticalAccuracy=1000&altitude=530&debug=false&configUrl=https://你的域名/loc.json?token=你的TOKEN
-
-[MITM]
-hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
-```
-
-`[MITM]` 部分保持不变。
+配置服务器域名只用于下载模块、脚本和读取坐标，不需要加入 HTTPS 解密；HTTPS 解密只需要 Apple 定位相关域名。
 
 ## 九、地图怎么用
 
@@ -395,7 +389,7 @@ https://你的域名/loc.json?token=你的TOKEN
 - 小火箭模块是否真的启用
 - HTTPS 解密 / MITM 是否开启
 - CA 证书是否已安装并信任
-- 模块参数里是否真的加了 `configUrl`
+- 是否导入的是 `shadowrocket-v2.sgmodule`
 - `loc.json?token=...` 返回的经纬度是否已经变化
 
 ## 十一、常见问题
@@ -446,13 +440,22 @@ https://你的域名/loc.json?token=你的TOKEN
 
 说明你还没有选择搜索结果/放置图钉并保存。
 
-如果 `/loc.json` 已经变成你选的新坐标，但 Apple 地图还是苹果总部，说明小火箭还在用旧模块或旧缓存。请在小火箭里导入：
+如果 `/loc.json` 已经变成你选的新坐标，但 Apple 地图还是苹果总部，说明小火箭还在用旧模块或旧缓存。请删除旧模块后重新导入：
 
 ```text
-https://你的域名/shadowrocket.sgmodule?token=你的TOKEN
+https://你的域名/shadowrocket-v2.sgmodule?token=你的TOKEN
 ```
 
-然后删除旧的 `iOS Location Spoofer` 模块，重新连接小火箭。
+然后重新连接小火箭，并关开一次 iPhone 定位服务。
+
+如果 `v2` 动态模块仍异常，可用两个诊断模块定位问题：
+
+```text
+https://你的域名/shadowrocket-apple.sgmodule?token=你的TOKEN
+https://你的域名/shadowrocket-static.sgmodule?token=你的TOKEN
+```
+
+`apple` 模块硬编码苹果总部；`static` 模块硬编码当前 `/loc.json` 坐标。两个都不生效时，优先检查 Shadowrocket 模块是否启用、HTTPS 解密是否开启、CA 证书是否完全信任。
 
 ### 搜索后没变化
 
@@ -484,7 +487,7 @@ worker.js
 https://你的域名/?token=你的TOKEN
 ```
 
-小火箭 configUrl：
+Loon / 其他客户端 configUrl：
 
 ```text
 https://你的域名/loc.json?token=你的TOKEN
@@ -493,5 +496,5 @@ https://你的域名/loc.json?token=你的TOKEN
 小火箭模块导入地址：
 
 ```text
-https://你的域名/shadowrocket.sgmodule?token=你的TOKEN
+https://你的域名/shadowrocket-v2.sgmodule?token=你的TOKEN
 ```

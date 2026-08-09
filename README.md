@@ -91,7 +91,7 @@ location-picker/worker/          # Cloudflare Worker 版（免 VPS，支持 Loon
 
 ## 进阶：网页地图选点工具
 
-经常换定位、懒得手动查坐标改参数？项目自带 [`location-picker/`](location-picker/) 地图选点工具：点地图即定位、海拔自动、精度可调，Loon / Shadowrocket 通过 `configUrl` 读取。
+经常换定位、懒得手动查坐标改参数？项目自带 [`location-picker/`](location-picker/) 地图选点工具：点地图即定位、海拔自动、精度可调，Loon 通过 `configUrl` 读取，Shadowrocket 推荐导入 Worker 自动生成的 `shadowrocket-v2.sgmodule`。
 
 **两种部署方式：**
 
@@ -106,6 +106,14 @@ Loon 插件 **远程配置 URL** 示例：
 https://你的worker.workers.dev/loc.json?token=你的TOKEN
 ```
 
+Shadowrocket 小火箭模块导入地址示例：
+
+```
+https://你的worker.workers.dev/shadowrocket-v2.sgmodule?token=你的TOKEN
+```
+
+`v2` 模块会把当前保存坐标写成备用值，并用 `configHost` / `configToken` 读取最新 `/loc.json`，比手动追加 `configUrl` 更稳。
+
 ## 友情链接
 
 本项目接受 LINUX DO 社区佬友监督与反馈：[LINUX DO](https://linux.do)
@@ -116,7 +124,7 @@ https://你的worker.workers.dev/loc.json?token=你的TOKEN
 
 | 变量 | 是否必设 | 默认值 | 说明 |
 |------|---------|--------|------|
-| `TOKEN` | **必设** | 无 | 访问口令和 Shadowrocket 模块 `argument=` 末尾的 `configUrl` 里的 `token=` 必须一致。建议 `openssl rand -hex 24` 生成 |
+| `TOKEN` | **必设** | 无 | 访问口令。Loon `configUrl`、Shadowrocket `shadowrocket-v2.sgmodule?token=` 都必须使用同一个 TOKEN。建议 `openssl rand -hex 24` 生成 |
 | `PORT` | 否 | `8080` | 监听端口；1024 以下需 root |
 | `CERT` | 否 | 空 | HTTPS 证书 fullchain 路径；与 `KEY` 同时设置才走 https |
 | `KEY` | 否 | 空 | HTTPS 私钥路径；与 `CERT` 同时设置才走 https |

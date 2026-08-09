@@ -10,6 +10,9 @@
 | `/loc.json?token=` | GET | 读取坐标 JSON |
 | `/set?token=` | POST | 保存坐标 |
 | `/shadowrocket.sgmodule?token=` | GET | 自动生成已绑定当前 Worker 的小火箭模块 |
+| `/shadowrocket-v2.sgmodule?token=` | GET | 推荐：带当前坐标备用值的小火箭模块 |
+| `/shadowrocket-apple.sgmodule?token=` | GET | 诊断：硬编码苹果总部 |
+| `/shadowrocket-static.sgmodule?token=` | GET | 诊断：硬编码当前 KV 坐标 |
 | `/health` | GET | 健康检查（无需 token） |
 | `/enable` | POST | 回到真实位置（再点一下恢复伪造） |
 
@@ -71,16 +74,28 @@ https://ios-location-picker.你的账号.workers.dev/?token=你的TOKEN
 推荐直接导入 Worker 自动生成的小火箭模块：
 
 ```
-https://ios-location-picker.你的账号.workers.dev/shadowrocket.sgmodule?token=你的TOKEN
+https://ios-location-picker.你的账号.workers.dev/shadowrocket-v2.sgmodule?token=你的TOKEN
 ```
 
-这个模块会自动带上正确的 `configUrl`。如果你已经导入过旧模块，也可以手动在旧模块的 `argument=` 末尾追加：
+`v2` 模块会自动带上 `configHost` / `configToken`，并把当前 KV 坐标写成备用值。远程配置短暂读取失败时，也不会回退到苹果总部。
+
+如果你开代理更新模块时遇到 TLS 错误，请把 Worker 域名设为直连：
 
 ```
-&configUrl=https://ios-location-picker.你的账号.workers.dev/loc.json?token=你的TOKEN
+DOMAIN,ios-location-picker.你的账号.workers.dev,DIRECT
+DOMAIN-SUFFIX,workers.dev,DIRECT
 ```
 
-如果 `/loc.json?token=...` 已经是新坐标，但 Apple 地图还是苹果总部，通常就是小火箭仍在使用没有 `configUrl` 的旧模块。删除旧模块后重新导入上面的 `.sgmodule` 地址。
+如果 `/loc.json?token=...` 已经是新坐标，但 Apple 地图还是苹果总部，通常就是小火箭仍在使用旧模块或 HTTPS 解密没有启用。删除旧模块后重新导入上面的 `shadowrocket-v2.sgmodule` 地址。
+
+诊断时可导入：
+
+```
+https://ios-location-picker.你的账号.workers.dev/shadowrocket-apple.sgmodule?token=你的TOKEN
+https://ios-location-picker.你的账号.workers.dev/shadowrocket-static.sgmodule?token=你的TOKEN
+```
+
+`apple` 硬编码苹果总部，`static` 硬编码当前 KV 坐标。两个都无效时，优先检查 Shadowrocket 模块启用状态、HTTPS 解密和 CA 证书信任。
 
 ## 自定义域名（可选）
 
