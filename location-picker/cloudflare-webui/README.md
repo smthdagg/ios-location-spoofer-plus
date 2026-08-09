@@ -131,6 +131,8 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 
 把它导入 Shadowrocket → 配置 → 模块 → `+` → 来自 URL。
 
+Plus 版请使用后台生成的这个模块 URL，不要再导入上游静态 `ios-location-spoofer.sgmodule`。更换定位时只需要在后台地图保存新坐标，不需要反复重新导入模块。
+
 ## 地图底图说明
 
 | 场景 | 推荐底图 |

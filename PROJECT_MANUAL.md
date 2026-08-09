@@ -49,7 +49,26 @@ iPhone
 
 你需要一台 iPhone 和 Shadowrocket 小火箭。
 
-### 3.2 开启 HTTPS 解密
+### 3.2 导入 Plus 后台生成的模块
+
+Plus 版不推荐直接导入上游静态模块。正确流程是先完成 Cloudflare 部署，在 `/admin` 生成 TOKEN，然后复制后台给出的模块 URL：
+
+```text
+https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
+```
+
+Shadowrocket 操作：
+
+1. 配置 → 模块。
+2. 删除旧测试模块、旧 Plus 模块或上游基础模块。
+3. 右上角 `+`。
+4. 来自 URL。
+5. 粘贴 Plus 后台生成的模块 URL。
+6. 保存并启用。
+
+后续修改定位时，不需要重新导入模块，只需要在 Plus 后台地图保存新坐标。
+
+### 3.3 开启 HTTPS 解密
 
 进入 Shadowrocket 的 HTTPS 解密页面，确认以下域名在 MITM 列表中：
 
@@ -60,7 +79,7 @@ bluedot.is.autonavi.com
 bluedot.is.autonavi.com.gds.alibabadns.com
 ```
 
-### 3.3 安装并信任 CA 证书
+### 3.4 安装并信任 CA 证书
 
 必须完成两步：
 
@@ -164,10 +183,13 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 Shadowrocket 操作：
 
 1. 配置 → 模块。
-2. 右上角 `+`。
-3. 来自 URL。
-4. 粘贴后台生成的模块 URL。
-5. 保存并启用。
+2. 删除旧测试模块、旧 Plus 模块或上游基础模块。
+3. 右上角 `+`。
+4. 来自 URL。
+5. 粘贴后台生成的模块 URL。
+6. 保存并启用。
+
+导入后日常无需反复更新模块。Plus 后台保存定位后，小火箭会通过 `configHost` / `configToken` 读取 `/loc.json` 中的最新坐标。
 
 如果开代理更新模块时 TLS 报错，给配置服务器域名加直连规则：
 
@@ -336,7 +358,26 @@ iPhone
 
 You need an iPhone and the Shadowrocket app.
 
-### 3.2 Enable HTTPS Decryption
+### 3.2 Import The Plus-Generated Module
+
+Plus does not recommend importing the upstream static module directly. The correct flow is to deploy Cloudflare first, generate TOKEN in `/admin`, and copy the generated module URL:
+
+```text
+https://your-domain/shadowrocket-v2.sgmodule?token=GENERATED_TOKEN
+```
+
+Shadowrocket steps:
+
+1. Config → Modules.
+2. Delete old test modules, old Plus modules, or upstream base modules.
+3. Tap `+`.
+4. Choose URL import.
+5. Paste the Plus-generated module URL.
+6. Save and enable it.
+
+After that, you do not need to re-import the module when changing locations. Save the new coordinates in the Plus dashboard instead.
+
+### 3.3 Enable HTTPS Decryption
 
 In Shadowrocket, enable HTTPS decryption and make sure these MITM hostnames are included:
 
@@ -347,7 +388,7 @@ bluedot.is.autonavi.com
 bluedot.is.autonavi.com.gds.alibabadns.com
 ```
 
-### 3.3 Install And Trust The CA Certificate
+### 3.4 Install And Trust The CA Certificate
 
 You must complete both steps:
 
@@ -451,10 +492,13 @@ https://your-domain/shadowrocket-v2.sgmodule?token=GENERATED_TOKEN
 Shadowrocket steps:
 
 1. Config → Modules.
-2. Tap `+`.
-3. Choose URL import.
-4. Paste the generated module URL.
-5. Save and enable it.
+2. Delete old test modules, old Plus modules, or upstream base modules.
+3. Tap `+`.
+4. Choose URL import.
+5. Paste the generated module URL.
+6. Save and enable it.
+
+You do not need to update the module repeatedly for normal location changes. The Plus module reads the latest coordinates from `/loc.json` through `configHost` / `configToken`.
 
 If module updates fail with TLS errors while proxy is enabled, add direct rules:
 

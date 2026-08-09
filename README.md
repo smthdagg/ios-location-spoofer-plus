@@ -35,13 +35,13 @@ Plus 版维护：
 
 ## 快速开始
 
-1. 手机端完成 Shadowrocket HTTPS 解密与 CA 证书信任。
-2. Cloudflare 上传 Plus zip，或复制单文件 Worker。
-3. 绑定 KV：`LOC_KV`。
-4. 设置 Secret：`ADMIN`。
-5. 打开 `https://你的域名/admin`。
-6. 首次点击“生成 TOKEN”。
-7. 复制后台生成的小火箭模块 URL 并导入 Shadowrocket。
+1. Cloudflare 上传 Plus zip，或复制单文件 Worker。
+2. 绑定 KV：`LOC_KV`。
+3. 设置 Secret：`ADMIN`。
+4. 打开 `https://你的域名/admin`。
+5. 首次点击“生成 TOKEN”。
+6. 复制后台生成的小火箭模块 URL 并导入 Shadowrocket。
+7. 手机端完成 Shadowrocket HTTPS 解密与 CA 证书信任。
 8. 在后台地图点选位置，保存定位。
 9. iPhone 定位服务关闭一次再开启。
 
@@ -101,13 +101,13 @@ Plus edition:
 
 ## Quick Start
 
-1. Set up Shadowrocket HTTPS decryption and trust the CA certificate on iPhone.
-2. Upload the Plus zip to Cloudflare or paste the single-file Worker.
-3. Bind KV as `LOC_KV`.
-4. Set Secret `ADMIN`.
-5. Open `https://your-domain/admin`.
-6. Click “Generate TOKEN” once.
-7. Copy the generated Shadowrocket module URL into Shadowrocket.
+1. Upload the Plus zip to Cloudflare or paste the single-file Worker.
+2. Bind KV as `LOC_KV`.
+3. Set Secret `ADMIN`.
+4. Open `https://your-domain/admin`.
+5. Click “Generate TOKEN” once.
+6. Copy the generated Shadowrocket module URL into Shadowrocket.
+7. Set up Shadowrocket HTTPS decryption and trust the CA certificate on iPhone.
 8. Pick a location on the admin map and save it.
 9. Toggle iPhone Location Services off and on.
 
