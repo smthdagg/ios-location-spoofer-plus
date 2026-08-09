@@ -227,7 +227,10 @@ export default {
       return textResponse(PAGE, "text/html; charset=utf-8");
     }
 
-    if (url.pathname === "/shadowrocket.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
+    if (
+      (url.pathname === "/shadowrocket.sgmodule" || url.pathname === "/shadowrocket-v2.sgmodule") &&
+      (request.method === "GET" || request.method === "HEAD")
+    ) {
       if (!auth.ok) {
         return unauthorized();
       }
