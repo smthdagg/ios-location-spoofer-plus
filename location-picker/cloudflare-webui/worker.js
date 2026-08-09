@@ -18,6 +18,7 @@ export const PAGE = `<!doctype html>
   .rrow:active{background:#f0f6ff}
   #map{height:52vh}
   #info{padding:8px 10px;font-size:13px;line-height:1.4}
+  .hint{padding:6px 10px 0;font-size:12px;line-height:1.45;color:#666}
   .opts{padding:6px 10px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
   .opts label{font-size:13px;color:#444;display:flex;flex-direction:column}
   .opts input{width:88px;padding:8px;font-size:15px;border:1px solid #ccc;border-radius:6px;margin-top:2px}
@@ -35,6 +36,7 @@ export const PAGE = `<!doctype html>
 </div>
 <div class="results" id="results"></div>
 <div id="map"></div>
+<div class="hint">提醒：必须在地图上点一下或点搜索结果放置图钉，再点“保存定位”才会写入定位数据。保存后，手机定位服务需要关闭一次再开启才会生效。</div>
 <div id="info">加载中…</div>
 <div class="opts">
   <label>海拔(米)<input id="alt" type="number" inputmode="numeric"></label>
