@@ -114,6 +114,8 @@ https://你的worker.workers.dev/shadowrocket-v2.sgmodule?token=你的TOKEN
 
 `v2` 模块会把当前保存坐标写成备用值，并用 `configHost` / `configToken` 读取最新 `/loc.json`，比手动追加 `configUrl` 更稳。
 
+地图页默认使用 OSM，并提供 Carto、Esri 卫星、OpenTopo、高德地图、高德卫星等底图。高德底图主要适合中国大陆、港澳台坐标；海外定位点建议使用 OSM / Carto / Esri 卫星 / OpenTopo。
+
 ## 友情链接
 
 本项目接受 LINUX DO 社区佬友监督与反馈：[LINUX DO](https://linux.do)
