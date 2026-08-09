@@ -1,142 +1,131 @@
 # iOS Location Spoofer Plus
 
-免费的一站式 iPhone 定位管理项目：用 Shadowrocket 的 HTTPS 解密能力拦截 Apple 定位响应，再用 Cloudflare 免费后台生成 TOKEN、生成小火箭模块 URL，并直接在后台地图上修改定位。
+中文 | [English](#english)
 
-这个仓库现在按 **Plus 独立分支项目** 维护。原始 MITM 定位逻辑来自 [acheong08/ios-location-spoofer](https://github.com/acheong08/ios-location-spoofer) 的研究，JavaScript 版参考 [mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)。Plus 版重点不再只是“给模块改参数”，而是把部署、TOKEN、模块 URL、地图选点、底图切换和定位保存做成一个免费后台。
+免费的一站式 iPhone 定位管理项目。手机端使用 Shadowrocket 的 HTTPS 解密能力拦截 Apple 定位响应，Cloudflare 端提供 Plus 管理后台：首次生成 TOKEN、生成小火箭模块 URL、直接在地图上保存定位。
 
-> 新手直接看：[Plus 小白教程](使用教程.md)
+![Plus 管理后台](docs/assets/admin-dashboard.png)
 
-## Plus 版做什么
+## 项目定位
 
-- **手机端照旧**：Shadowrocket 小火箭仍然负责 HTTPS 解密、安装 CA 证书、拦截 Apple 定位接口。
-- **Cloudflare 免费后台**：类似 edgetunnel 的使用方式，只需要部署 Worker / Pages、绑定 KV、设置 `ADMIN`。
-- **首次生成 TOKEN**：进入 `/admin` 后一键生成，不再让小白手动找随机字符串；生成后日常不需要再动。
-- **自动生成小火箭模块 URL**：后台直接给出 `/shadowrocket-v2.sgmodule?token=...`。
-- **后台内置地图定位管理**：OSM、Carto、Esri 卫星、OpenTopo、高德地图、高德卫星都作为后台的一部分使用。
-- **一站式免费使用**：个人使用 Cloudflare 免费额度通常足够，无需 VPS、无需自签服务端证书。
+`iOS Location Spoofer Plus` 是一个独立分支项目。它保留上游 JavaScript 定位修改逻辑，同时把部署、TOKEN、模块链接、地图选点和调试流程做成 Cloudflare 免费后台。
 
-## 使用路线
+上游参考：
 
-### 第一部分：手机端基础设置
+- [acheong08/ios-location-spoofer](https://github.com/acheong08/ios-location-spoofer)
+- [mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)
 
-这部分和原项目一致，核心是：
+Plus 版维护：
 
-1. Shadowrocket 导入模块。
-2. 打开 HTTPS 解密。
-3. 安装并完全信任 CA 证书。
-4. 确认 MITM 域名包含：
+- Developer: **SMTH DAGG**
+- Repo: [smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)
+- Version: `0.2.1-plus`
 
-```text
-gs-loc.apple.com
-gs-loc-cn.apple.com
-bluedot.is.autonavi.com
-bluedot.is.autonavi.com.gds.alibabadns.com
-```
+## 核心功能
 
-手机端这部分不需要大改，按 [使用教程.md](使用教程.md) 第一部分操作即可。
+- Shadowrocket 小火箭 HTTPS 解密与 CA 证书流程
+- Cloudflare Worker / Pages 免费部署
+- `/admin` 管理后台
+- 自动生成 TOKEN
+- 自动生成 Shadowrocket `shadowrocket-v2.sgmodule` URL
+- 后台内嵌地图定位管理
+- OSM、Carto、Esri 卫星、OpenTopo、高德地图、高德卫星底图
+- `/health` 诊断接口
+- 测试模块：苹果总部、当前 KV 坐标
 
-### 第二部分：Cloudflare Plus 后台部署
+## 快速开始
 
-推荐用 Cloudflare Pages zip 上传或 Worker 单文件部署：
+1. 手机端完成 Shadowrocket HTTPS 解密与 CA 证书信任。
+2. Cloudflare 上传 Plus zip，或复制单文件 Worker。
+3. 绑定 KV：`LOC_KV`。
+4. 设置 Secret：`ADMIN`。
+5. 打开 `https://你的域名/admin`。
+6. 首次点击“生成 TOKEN”。
+7. 复制后台生成的小火箭模块 URL 并导入 Shadowrocket。
+8. 在后台地图点选位置，保存定位。
+9. iPhone 定位服务关闭一次再开启。
 
-- 新手网页部署 / zip 上传：[location-picker/cloudflare-webui](location-picker/cloudflare-webui/)
-- 命令行 Wrangler 部署：[location-picker/worker](location-picker/worker/)
+## 文档
 
-部署后只需要两个 Cloudflare 配置：
+- [完整项目说明书 / Full Project Manual](PROJECT_MANUAL.md)
+- [中文小白教程](使用教程.md)
+- [Cloudflare 网页部署](location-picker/cloudflare-webui/)
+- [Wrangler Worker 部署](location-picker/worker/)
 
-| 配置 | 变量名 | 用途 |
-|------|--------|------|
-| KV 绑定 | `LOC_KV` | 保存定位、TOKEN、后台会话 |
-| Secret | `ADMIN` | 管理后台登录密码 |
+## 截图
 
-然后打开：
+![后台概览](docs/assets/admin-dashboard.png)
 
-```text
-https://你的域名/admin
-```
+![地图定位管理](docs/assets/location-map.png)
 
-登录后点击“生成 TOKEN”，后台会生成 TOKEN，并给出：
+## 版权与法律说明
 
-```text
-地图管理地址
-Shadowrocket 小火箭模块 URL
-Loon configUrl
-当前坐标状态
-```
-
-### 第三部分：后台地图定位管理
-
-Plus 后台会直接内嵌地图，不需要再单独打开另一个页面。
-
-使用顺序：
-
-1. 进入 `/admin`。
-2. 首次使用时点击“生成 TOKEN”。
-3. 后台地图自动出现。
-4. 搜索地点并点候选，或直接点地图放置图钉。
-5. 点击“保存定位”。
-6. iPhone 定位服务关闭一次再开启，让系统重新请求定位。
-
-底图说明：
-
-| 场景 | 推荐底图 |
-|------|----------|
-| 中国大陆 / 港澳台 | 高德地图、高德卫星 |
-| 海外普通选点 | OSM 地图、Carto 浅色 |
-| 海外卫星图 | Esri 卫星 |
-| 看地形 / 海拔 | OpenTopo 地形 |
-
-高德底图在海外空白是覆盖范围问题，不代表定位保存失败。
-
-## Shadowrocket 模块
-
-Plus 推荐使用后台自动生成的小火箭模块 URL：
-
-```text
-https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
-```
-
-`v2` 模块会自动写入：
-
-- 当前保存坐标作为备用值
-- `configHost`
-- `configToken`
-- 小火箭脚本地址
-
-这样网页后台保存新坐标后，小火箭读取 `/loc.json` 即可生效。
-
-## 文件清单
-
-```text
-ios-location-spoofer.sgmodule           # 原始 Shadowrocket / Surge 静态模块
-ios-location-spoofer.lnplugin           # Loon 插件
-ios-location-spoofer.snippet            # Quantumult X 配置
-ios-location-spoofer.stoverride         # Stash 覆写
-location-spoofer.js                     # 核心脚本
-location-picker/cloudflare-webui/       # Plus 网页部署 / zip 上传版
-location-picker/worker/                 # Plus Wrangler Worker 版
-location-picker/server.js               # Node 自托管版，保留给 VPS/NAS 用户
-使用教程.md                              # 小白教程
-```
-
-## 安全说明
-
-- `/admin` 需要 `ADMIN` 管理密码。
-- 用户访问地图和模块需要 TOKEN。
-- 新版 TOKEN 优先保存在 KV，旧版 `TOKEN` Secret 仍然兼容。
-- 后台不会鼓励反复改 TOKEN；如需更换，使用“重新生成 TOKEN 并重置所有参数”，旧模块 URL 会失效，定位参数会恢复默认。
-- 不要把配置服务器域名加入 Shadowrocket HTTPS 解密列表。
-- 如果开代理更新模块时 TLS 报错，给你的 Cloudflare 域名加 `DIRECT` 规则。
-
-## 版本与版权
-
-- 当前版本：`0.2.1-plus`
-- 开发者：SMTH DAGG
-- GitHub：[smthdagg/ios-location-spoofer](https://github.com/smthdagg/ios-location-spoofer)
-- 上游参考：[mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)
+Copyright © 2026 SMTH DAGG.
 
 本项目仅供个人研究、测试和合法教育用途。使用者必须自行遵守所在地法律法规、平台条款、运营商规则与第三方服务规则。禁止用于欺诈、骚扰、规避执法、未授权访问或任何违法用途。项目按现状提供，不提供任何担保。
 
-## 生效提醒
+---
 
-保存定位后，iPhone 不一定立刻重新请求定位。请关闭一次 **设置 → 隐私与安全性 → 定位服务**，等 10 秒再打开；必要时重复几次，并重开地图 App。
+## English
+
+Free all-in-one iPhone location management project. Shadowrocket performs HTTPS decryption on the iPhone side, while Cloudflare hosts the Plus admin dashboard for one-time TOKEN generation, Shadowrocket module URL generation, and map-based location management.
+
+![Plus Admin Dashboard](docs/assets/admin-dashboard.png)
+
+## Project Direction
+
+`iOS Location Spoofer Plus` is maintained as an independent Plus branch project. It keeps the upstream JavaScript location spoofing logic and adds a free Cloudflare dashboard for deployment, TOKEN management, module URL generation, map picking, and diagnostics.
+
+Upstream references:
+
+- [acheong08/ios-location-spoofer](https://github.com/acheong08/ios-location-spoofer)
+- [mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)
+
+Plus edition:
+
+- Developer: **SMTH DAGG**
+- Repo: [smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)
+- Version: `0.2.1-plus`
+
+## Features
+
+- Shadowrocket HTTPS decryption and CA certificate workflow
+- Free Cloudflare Worker / Pages deployment
+- `/admin` dashboard
+- One-time TOKEN generation
+- Generated Shadowrocket `shadowrocket-v2.sgmodule` URL
+- Built-in map location manager
+- OSM, Carto, Esri Satellite, OpenTopo, Amap vector and Amap satellite layers
+- `/health` diagnostics
+- Diagnostic modules for Apple Park and current KV coordinates
+
+## Quick Start
+
+1. Set up Shadowrocket HTTPS decryption and trust the CA certificate on iPhone.
+2. Upload the Plus zip to Cloudflare or paste the single-file Worker.
+3. Bind KV as `LOC_KV`.
+4. Set Secret `ADMIN`.
+5. Open `https://your-domain/admin`.
+6. Click “Generate TOKEN” once.
+7. Copy the generated Shadowrocket module URL into Shadowrocket.
+8. Pick a location on the admin map and save it.
+9. Toggle iPhone Location Services off and on.
+
+## Documentation
+
+- [Full Project Manual / 完整项目说明书](PROJECT_MANUAL.md)
+- [Chinese Beginner Guide](使用教程.md)
+- [Cloudflare Web Deployment](location-picker/cloudflare-webui/)
+- [Wrangler Worker Deployment](location-picker/worker/)
+
+## Screenshots
+
+![Admin Overview](docs/assets/admin-dashboard.png)
+
+![Map Location Manager](docs/assets/location-map.png)
+
+## Copyright And Legal Notice
+
+Copyright © 2026 SMTH DAGG.
+
+This project is provided for personal research, testing, and lawful educational use only. You are responsible for complying with local laws, platform terms, carrier policies, and third-party service rules. Do not use it for fraud, harassment, unauthorized access, evasion of enforcement, or any illegal purpose. No warranty is provided.

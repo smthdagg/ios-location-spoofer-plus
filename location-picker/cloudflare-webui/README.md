@@ -1,6 +1,10 @@
-# iOS Location Spoofer Plus — Cloudflare 网页部署
+# iOS Location Spoofer Plus — Cloudflare 网页部署 / Cloudflare Web Deployment
 
 这是 Plus 版推荐给新手的免费部署方式。它的目标是像 edgetunnel 一样：部署完成后进入 `/admin`，后台首次生成 TOKEN、生成小火箭模块 URL，并直接提供地图定位管理。
+
+English: This is the recommended no-code Cloudflare deployment path for Plus. Deploy it, open `/admin`, generate TOKEN once, copy the Shadowrocket module URL, and manage locations on the built-in map.
+
+完整中英说明书见：[PROJECT_MANUAL.md](../../PROJECT_MANUAL.md)
 
 ## 你最终会得到什么
 

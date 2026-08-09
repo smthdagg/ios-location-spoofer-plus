@@ -241,7 +241,7 @@ const DEFAULT = {
 const SPOOFER_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
 const APP_VERSION = "0.2.1-plus";
-const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer";
+const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer-plus";
 const UPSTREAM_REPO = "https://github.com/mekos2772/ios-location-spoofer";
 const DEVELOPER_NAME = "SMTH DAGG";
 
@@ -510,7 +510,7 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.url
 </section>
 <footer class="footer card">
 <div><strong>iOS Location Spoofer Plus</strong> v${APP_VERSION} · Developer: <strong>${DEVELOPER_NAME}</strong></div>
-<div>GitHub: <a href="${PROJECT_REPO}" target="_blank" rel="noreferrer">SMTH DAGG / ios-location-spoofer</a> · Upstream: <a href="${UPSTREAM_REPO}" target="_blank" rel="noreferrer">mekos2772 / ios-location-spoofer</a></div>
+<div>GitHub: <a href="${PROJECT_REPO}" target="_blank" rel="noreferrer">SMTH DAGG / ios-location-spoofer-plus</a> · Upstream: <a href="${UPSTREAM_REPO}" target="_blank" rel="noreferrer">mekos2772 / ios-location-spoofer</a></div>
 <div class="legal">Copyright © 2026 ${DEVELOPER_NAME}. This project is provided for personal research, testing, and lawful educational use only. You are responsible for complying with local laws, platform terms, carrier policies, and third-party service rules. Do not use it for fraud, harassment, unauthorized access, evasion of enforcement, or any illegal purpose. No warranty is provided.</div>
 </footer>
 </main>
