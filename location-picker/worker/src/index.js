@@ -1,5 +1,5 @@
 /**
- * iOS Location Picker — Cloudflare Worker
+ * iOS Location Spoofer Plus — Cloudflare Worker
  *
  * API（与 location-picker/server.js 兼容）：
  *   GET  /loc.json?token=   → 读取坐标 JSON（Loon configUrl / Shadowrocket v2 模块）
@@ -177,7 +177,7 @@ function loginPage(error = "") {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>定位后台登录</title>
+<title>iOS Location Spoofer Plus 后台登录</title>
 <style>
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f6f8fa;margin:0;min-height:100vh;display:grid;place-items:center;color:#1f2328}
 form{background:#fff;width:min(92vw,380px);padding:28px;border:1px solid #d8dee4;border-radius:10px;box-shadow:0 8px 24px rgba(140,149,159,.18)}
@@ -190,7 +190,7 @@ button{border:0;background:#0969da;color:#fff;padding:12px;font-weight:700}
 </head>
 <body>
 <form method="post" action="/admin/login">
-<h1>iOS Location Picker 后台</h1>
+<h1>iOS Location Spoofer Plus 后台</h1>
 <div class="err">${htmlEscape(error)}</div>
 <input name="admin" type="password" autocomplete="current-password" placeholder="输入 ADMIN 管理密码" autofocus>
 <button type="submit">进入后台</button>
@@ -205,7 +205,7 @@ function adminPage() {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>定位管理后台</title>
+<title>iOS Location Spoofer Plus 管理后台</title>
 <style>
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;background:#f6f8fa;color:#1f2328}
 main{max-width:960px;margin:0 auto;padding:24px 16px 48px}
@@ -226,7 +226,7 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 <body>
 <main>
 <div class="top">
-<div><h1>定位管理后台</h1><div class="muted">生成 TOKEN、复制模块地址、检查当前坐标。</div></div>
+<div><h1>iOS Location Spoofer Plus</h1><div class="muted">免费 Cloudflare 一站式定位后台：生成 TOKEN、复制模块、直接管理地图定位。</div></div>
 <form method="post" action="/admin/logout"><button class="secondary" type="submit">退出</button></form>
 </div>
 <section class="grid">
@@ -262,6 +262,11 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 <button data-copy="loonUrl">复制 configUrl</button>
 </div>
 </section>
+<section class="card" style="margin-top:14px">
+<h2>定位管理地图</h2>
+<div class="muted" id="mapHint">生成 TOKEN 后，地图会自动加载在这里。必须在地图上点一下或点搜索结果放置图钉，再点“保存定位”。手机定位服务也需要关闭一次再开启。</div>
+<iframe id="mapFrame" title="定位管理地图" style="display:none;width:100%;height:680px;border:1px solid #d8dee4;border-radius:8px;margin-top:10px;background:#fff"></iframe>
+</section>
 </main>
 <script>
 async function load(){
@@ -278,6 +283,16 @@ async function load(){
   document.getElementById('mapUrl').textContent = d.urls.map;
   document.getElementById('srUrl').textContent = d.urls.shadowrocket;
   document.getElementById('loonUrl').textContent = d.urls.loon;
+  const frame = document.getElementById('mapFrame');
+  const hint = document.getElementById('mapHint');
+  if(d.urls.map){
+    if(frame.src !== d.urls.map) frame.src = d.urls.map;
+    frame.style.display = 'block';
+    hint.textContent = '地图已接入后台。点地图或搜索结果放置图钉，再点“保存定位”；保存后关闭再开启 iPhone 定位服务。';
+  } else {
+    frame.style.display = 'none';
+    hint.textContent = '生成 TOKEN 后，地图会自动加载在这里。';
+  }
 }
 async function saveToken(token){
   const r = await fetch('/admin/token', {
@@ -336,8 +351,8 @@ function moduleResponse(request, token, loc, includeBody = true) {
   const horizontalAccuracy = Number.isFinite(Number(loc.horizontalAccuracy)) ? Math.round(Number(loc.horizontalAccuracy)) : 39;
   const verticalAccuracy = Number.isFinite(Number(loc.verticalAccuracy)) ? Math.round(Number(loc.verticalAccuracy)) : 1000;
   return textResponse(
-    includeBody ? `#!name=iOS Location Spoofer
-#!desc=Apple 定位伪装。配置已绑定 ${url.origin}，网页保存后小火箭读取 /loc.json 生效。
+    includeBody ? `#!name=iOS Location Spoofer Plus
+#!desc=Apple 定位伪装 Plus。配置已绑定 ${url.origin}，后台保存后小火箭读取 /loc.json 生效。
 #!homepage=https://github.com/mekos2772/ios-location-spoofer
 
 [Script]
@@ -562,7 +577,7 @@ export default {
       if (!auth.ok) {
         return unauthorized(auth.error);
       }
-      return staticModuleResponse(request, DEFAULT, "iOS Location Spoofer Apple Test", request.method === "GET");
+      return staticModuleResponse(request, DEFAULT, "iOS Location Spoofer Plus Apple Test", request.method === "GET");
     }
 
     if (url.pathname === "/shadowrocket-static.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
@@ -570,7 +585,7 @@ export default {
         return unauthorized(auth.error);
       }
       const loc = await readLoc(env);
-      return staticModuleResponse(request, loc, "iOS Location Spoofer Static Test", request.method === "GET");
+      return staticModuleResponse(request, loc, "iOS Location Spoofer Plus Static Test", request.method === "GET");
     }
 
     if (url.pathname === "/location-spoofer.js" && (request.method === "GET" || request.method === "HEAD")) {

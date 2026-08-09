@@ -1,25 +1,23 @@
-# Location Picker — Cloudflare Worker
+# iOS Location Spoofer Plus — Wrangler Worker
 
-与 `../server.js` API 完全兼容，免 VPS、自带 HTTPS，支持 **Loon / Shadowrocket / Surge** 的 `configUrl`。
+这是 Plus 版的命令行部署方式，适合熟悉 npm / Wrangler 的用户。新手推荐看 [`../cloudflare-webui/`](../cloudflare-webui/) 的 zip / 网页部署方式。
 
 ## 接口
 
 | 路径 | 方法 | 说明 |
 |------|------|------|
-| `/?token=` | GET | 地图选点网页（必须带正确 token） |
-| `/loc.json?token=` | GET | 读取坐标 JSON |
+| `/admin` | GET/POST | Plus 管理后台：登录、生成 TOKEN、复制模块 URL、地图定位管理 |
+| `/?token=` | GET | 地图选点页面，也会内嵌在 `/admin` |
+| `/loc.json?token=` | GET | 当前坐标 JSON |
 | `/set?token=` | POST | 保存坐标 |
-| `/shadowrocket.sgmodule?token=` | GET | 兼容旧链接；新部署推荐使用 v2 |
-| `/shadowrocket-v2.sgmodule?token=` | GET | 推荐：带当前坐标备用值的小火箭模块 |
-| `/shadowrocket-apple.sgmodule?token=` | GET | 诊断：硬编码苹果总部 |
-| `/shadowrocket-static.sgmodule?token=` | GET | 诊断：硬编码当前 KV 坐标 |
-| `/health` | GET | 健康检查（无需 token） |
-| `/enable` | POST | 回到真实位置（再点一下恢复伪造） |
-| `/admin` | GET/POST | 管理后台：登录、生成 TOKEN、复制地图和模块地址 |
+| `/enable?token=` | POST | 恢复真实定位 / 再启用伪造 |
+| `/shadowrocket-v2.sgmodule?token=` | GET | 推荐的小火箭模块 |
+| `/shadowrocket.sgmodule?token=` | GET | 兼容旧链接 |
+| `/shadowrocket-apple.sgmodule?token=` | GET | 诊断模块：苹果总部 |
+| `/shadowrocket-static.sgmodule?token=` | GET | 诊断模块：当前 KV 坐标 |
+| `/health` | GET | 健康检查 |
 
 ## 部署
-
-> 只想用 Cloudflare 网页后台复制粘贴、不想装 npm / Wrangler 的用户，看这里：[`../cloudflare-webui/`](../cloudflare-webui/)。
 
 ### 1. 安装依赖
 
@@ -28,25 +26,24 @@ cd location-picker/worker
 npm install
 ```
 
-### 2. 创建 KV 命名空间
+### 2. 创建 KV
 
 ```bash
 npx wrangler kv namespace create LOC_KV
 npx wrangler kv namespace create LOC_KV --preview
 ```
 
-把输出的 `id` 填进 `wrangler.jsonc` 的 `id` 和 `preview_id`。
+把输出的 `id` 填进 `wrangler.jsonc`。
 
-### 3. 设置后台管理员密码
+### 3. 设置 ADMIN
 
 ```bash
 npx wrangler secret put ADMIN
-# 输入一串足够长的管理员密码
 ```
 
-新版推荐只设置 `ADMIN`，部署后进入 `/admin` 自动生成 TOKEN。旧版如果已经设置过 `TOKEN`，仍然兼容。
+输入一个足够长的后台管理密码。
 
-本地开发可复制 `.dev.vars.example` 为 `.dev.vars` 并填写 `ADMIN=...`。
+新版不要求手动设置 `TOKEN`。进入 `/admin` 后后台会自动生成 TOKEN 并保存到 KV。旧部署如果已经设置过 `TOKEN` Secret，仍然兼容。
 
 ### 4. 部署
 
@@ -54,94 +51,79 @@ npx wrangler secret put ADMIN
 npm run deploy
 ```
 
-记下输出的地址，例如 `https://ios-location-picker.你的账号.workers.dev`。
-
-### 5. 进入管理后台
-
-打开：
+默认 Worker 名称是：
 
 ```text
-https://ios-location-picker.你的账号.workers.dev/admin
+ios-location-spoofer-plus
 ```
 
-输入 `ADMIN` 管理密码，进入后台后点击“自动生成”生成 TOKEN。后台会直接给出：
+部署后打开：
 
-- 地图页面地址
-- Shadowrocket 小火箭模块地址
+```text
+https://ios-location-spoofer-plus.你的账号.workers.dev/admin
+```
+
+## Plus 后台
+
+登录 `/admin` 后点击“自动生成”，后台会给出：
+
+- Shadowrocket 小火箭模块 URL
 - Loon `configUrl`
-- 当前坐标和健康状态
+- 地图管理地址
+- 当前坐标
+- KV / TOKEN / ADMIN 状态
 
-## Loon 插件配置
+后台下方会直接内嵌地图，可直接搜索、点选、保存定位。
 
-Loon → 设置 → 插件 → iOS Location Spoofer → **远程配置 URL**：
+## Shadowrocket
 
-```
-https://ios-location-picker.你的账号.workers.dev/loc.json?token=你的TOKEN
-```
+推荐从 `/admin` 复制完整模块 URL：
 
-推荐直接从 `/admin` 复制完整地址。
-
-保存后，在 iPhone 浏览器打开地图页：
-
-```
-https://ios-location-picker.你的账号.workers.dev/?token=你的TOKEN
+```text
+https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 ```
 
-搜索并点选候选结果，或直接点地图放置图钉 → **保存定位** → 关开 iPhone 定位服务生效（Loon 约 60 秒内刷新缓存）。
+导入后确认：
 
-重要：每次保存新的定位后，都需要把 iPhone 的定位服务关闭一下再开启，系统才会重新请求定位并命中新坐标。
+- 模块已启用。
+- HTTPS 解密已打开。
+- CA 证书已完全信任。
+- 保存定位后关闭再开启 iPhone 定位服务。
 
-## Shadowrocket 配置
+如果开代理更新模块 TLS 报错，给你的配置服务器域名加直连：
 
-推荐直接导入 Worker 自动生成的小火箭模块：
-
-```
-https://ios-location-picker.你的账号.workers.dev/shadowrocket-v2.sgmodule?token=你的TOKEN
-```
-
-推荐直接从 `/admin` 复制完整地址，避免 token 拼错。
-
-`v2` 模块会自动带上 `configHost` / `configToken`，并把当前 KV 坐标写成备用值。远程配置短暂读取失败时，也不会回退到苹果总部。
-
-如果你开代理更新模块时遇到 TLS 错误，请把 Worker 域名设为直连：
-
-```
-DOMAIN,ios-location-picker.你的账号.workers.dev,DIRECT
+```text
+DOMAIN,你的域名,DIRECT
 DOMAIN-SUFFIX,workers.dev,DIRECT
 ```
 
-如果 `/loc.json?token=...` 已经是新坐标，但 Apple 地图还是苹果总部，通常就是小火箭仍在使用旧模块或 HTTPS 解密没有启用。删除旧模块后重新导入上面的 `shadowrocket-v2.sgmodule` 地址。
+## 地图底图
 
-诊断时可导入：
-
-```
-https://ios-location-picker.你的账号.workers.dev/shadowrocket-apple.sgmodule?token=你的TOKEN
-https://ios-location-picker.你的账号.workers.dev/shadowrocket-static.sgmodule?token=你的TOKEN
-```
-
-`apple` 硬编码苹果总部，`static` 硬编码当前 KV 坐标。两个都无效时，优先检查 Shadowrocket 模块启用状态、HTTPS 解密和 CA 证书信任。
-
-## 自定义域名（可选）
-
-在 Cloudflare Dashboard → Workers → 你的 Worker → Settings → Domains 绑定子域即可，例如 `loc.example.com`。
-
-## 地图底图说明
-
-页面默认使用 `OSM 地图`。高德地图和高德卫星主要适合 **中国大陆、香港、澳门、台湾** 坐标；定位到英国、美国、欧洲、日本等海外地点时，高德底图可能空白，这是覆盖范围问题，不代表定位保存失败。
-
-建议：
-
-| 位置 | 推荐底图 |
+| 场景 | 推荐底图 |
 |------|----------|
-| 中国大陆 / 港澳台 | `高德地图`、`高德卫星` |
-| 海外普通选点 | `OSM 地图`、`Carto 浅色` |
-| 海外卫星图 | `Esri 卫星` |
-| 看地形 / 海拔 | `OpenTopo 地形` |
+| 中国大陆 / 港澳台 | 高德地图、高德卫星 |
+| 海外普通选点 | OSM 地图、Carto 浅色 |
+| 海外卫星图 | Esri 卫星 |
+| 看地形 / 海拔 | OpenTopo 地形 |
 
-定位功能不依赖高德底图。只要 `/loc.json` 里的经纬度已经变化，说明保存成功。
+高德海外空白是覆盖范围问题，不影响定位保存。
 
-## 与 Node 版差异
+## 本地开发
 
-- 数据存在 **KV**（非本地文件），个人用量免费额度足够
-- KV 有秒级最终一致性，保存后 Loon 最多等约 60 秒缓存刷新
-- 无需自行管理 HTTPS 证书
+复制 `.dev.vars.example`：
+
+```bash
+cp .dev.vars.example .dev.vars
+```
+
+填写：
+
+```text
+ADMIN=你的后台密码
+```
+
+然后：
+
+```bash
+npm run dev
+```

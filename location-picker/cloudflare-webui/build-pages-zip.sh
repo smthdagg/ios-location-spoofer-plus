@@ -3,8 +3,8 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 OUT_DIR="${1:-$SCRIPT_DIR/dist}"
-PKG_DIR="$OUT_DIR/ios-location-picker-cloudflare"
-ZIP_PATH="$OUT_DIR/ios-location-picker-cloudflare.zip"
+PKG_DIR="$OUT_DIR/ios-location-spoofer-plus-cloudflare"
+ZIP_PATH="$OUT_DIR/ios-location-spoofer-plus-cloudflare.zip"
 
 rm -rf "$PKG_DIR" "$ZIP_PATH"
 mkdir -p "$PKG_DIR"

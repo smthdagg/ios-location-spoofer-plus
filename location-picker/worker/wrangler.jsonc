@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "ios-location-picker",
+  "name": "ios-location-spoofer-plus",
   "main": "src/index.js",
   "compatibility_date": "2026-01-01",
   "workers_dev": true,

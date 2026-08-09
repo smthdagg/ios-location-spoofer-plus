@@ -1,153 +1,132 @@
-# iOS Location Spoofer
+# iOS Location Spoofer Plus
 
-用代理软件的 HTTPS 解密功能，把 Apple 地图定位骗到世界任何角落。
+免费的一站式 iPhone 定位管理项目：用 Shadowrocket 的 HTTPS 解密能力拦截 Apple 定位响应，再用 Cloudflare 免费后台生成 TOKEN、生成小火箭模块 URL，并直接在后台地图上修改定位。
 
-> 📖 **新手直接看这篇** → [**小白保姆级图文教程**](使用教程.md)（一步步教你安装、配置、生效，含常见问题排查）
+这个仓库现在按 **Plus 独立分支项目** 维护。原始 MITM 定位逻辑来自 [acheong08/ios-location-spoofer](https://github.com/acheong08/ios-location-spoofer) 的研究，JavaScript 版参考 [mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)。Plus 版重点不再只是“给模块改参数”，而是把部署、TOKEN、模块 URL、地图选点、底图切换和定位保存做成一个免费后台。
 
-## 参考项目
+> 新手直接看：[Plus 小白教程](使用教程.md)
 
-本项目基于 [acheong08/ios-location-spoofer](https://github.com/acheong08/ios-location-spoofer) 的核心研究。原始项目是用 Go 写的独立 iOS App，通过自建 VPN + MITM 代理实现定位欺骗。
+## Plus 版做什么
 
-本仓库将其核心逻辑移植为 JavaScript，适配到 Shadowrocket / Surge / Loon / Quantumult X / Stash 五个代理平台，免编译、免开发者账号，即导即用。
+- **手机端照旧**：Shadowrocket 小火箭仍然负责 HTTPS 解密、安装 CA 证书、拦截 Apple 定位接口。
+- **Cloudflare 免费后台**：类似 edgetunnel 的使用方式，只需要部署 Worker / Pages、绑定 KV、设置 `ADMIN`。
+- **自动生成 TOKEN**：进入 `/admin` 后一键生成，不再让小白手动找随机字符串。
+- **自动生成小火箭模块 URL**：后台直接给出 `/shadowrocket-v2.sgmodule?token=...`。
+- **后台内置地图定位管理**：OSM、Carto、Esri 卫星、OpenTopo、高德地图、高德卫星都作为后台的一部分使用。
+- **一站式免费使用**：个人使用 Cloudflare 免费额度通常足够，无需 VPS、无需自签服务端证书。
 
-### 相比原版新增的功能
+## 使用路线
 
-- **多平台支持** — 从单一 iOS App 扩展到五个代理软件，覆盖更多用户
-- **蜂窝基站坐标修改** — 原版 Go 只改了 WiFi 热点坐标，JS 版额外处理了 CellTower（字段 22/24）的坐标替换
-- **多响应格式兼容** — 自动检测 Apple 回应的封装格式（ARPC / synthetic / marker / bare），确保改后还能被 iOS 正确识别
-- **运动状态伪造** — 一并改写 motionActivityType 和 motionActivityConfidence，减少被系统识破的可能
+### 第一部分：手机端基础设置
 
-## 怎么回事
+这部分和原项目一致，核心是：
 
-iPhone 看 Wi-Fi 信号和基站信号，拿着 BSSID 列表去问 Apple 这些设备在什么位置。Apple 回一份坐标清单，iOS 根据这些坐标算出自己在哪里。
+1. Shadowrocket 导入模块。
+2. 打开 HTTPS 解密。
+3. 安装并完全信任 CA 证书。
+4. 确认 MITM 域名包含：
 
-这套配置做的事情很简单：**在 Apple 发回坐标的路上拦截下来，全部改成你想要的数字**。iPhone 拿到改造过的坐标，算出来就是你指定的地方。
-
-## 支持哪些软件
-
-| 软件 | 文件 | 导入方法 | 状态 |
-|------|------|---------|------|
-| Shadowrocket（小火箭） | `ios-location-spoofer.sgmodule` | 配置 → 右上角 + | ✅ 实测通过 |
-| Surge | `ios-location-spoofer.sgmodule` | 首页 → 模块 → 安装新模块 | ✅ 实测通过 |
-| Loon | `ios-location-spoofer.lnplugin` | 设置 → 插件 → 添加插件 | ✅ 实测通过 |
-| Quantumult X | `ios-location-spoofer.snippet` | 设置 → 重写 → 添加 | 🟡 待测试 |
-| Stash | `ios-location-spoofer.stoverride` | 覆写 → 安装覆写 | ✅ 实测通过 |
-
-> 欢迎测过的佬友在 Issue 区报实测结果；不通的地方欢迎直接提 PR 改 —— 至少写明**哪个软件、哪个版本、什么系统、报错的日志原文**。
-
-## 怎么用
-
-1. 软件里打开 HTTPS 解密 / MITM 开关
-2. 安装并信任 CA 证书（设置 → 通用 → VPN 与设备管理 → 安装 → 证书信任设置 → 启用）
-3. 导入模块文件，勾上启用
-4. 断开重连 VPN，关闭再开启 iPhone 定位服务
-5. 打开地图 App 验证
-
-每次修改并保存新坐标后，都需要关闭一下 iPhone 定位服务再开启，系统才会重新请求定位并命中新坐标。
-
-### Loon 额外说明
-
-1. 导入 `ios-location-spoofer.lnplugin` 后，在 **设置 → 插件** 里打开插件配置页
-2. 可直接填 **纬度 / 经度**；**地址搜索** 由每 15 分钟的定时任务联网解析并缓存（首次请直接填经纬度，或保存地址后等一轮 cron）
-3. 必须开启 Loon 的 **MITM** 并信任证书，且插件内 `[mitm]` 四个域名生效
-4. 插件含 **Prepare** 请求脚本（设置 `Accept-Encoding: identity`，避免 gzip 引发 `zip decompress error` / 脚本超时）
-5. 改坐标后关开定位；调试打开 **调试日志**，在 Loon 日志搜 `Location spoofer`
-
-> 日志若出现 `Evaluate script timeout` 或 `zip decompress error:-3`：更新插件并重载 Loon，确认三条脚本（Prepare / Response / Geocode cron）均已启用。
-
-## 改坐标
-
-默认 Apple Park（37.3349, -122.00902）。在模块参数里改：
-
-```
-latitude=39.9042&longitude=116.4074
+```text
+gs-loc.apple.com
+gs-loc-cn.apple.com
+bluedot.is.autonavi.com
+bluedot.is.autonavi.com.gds.alibabadns.com
 ```
 
-参数：
+手机端这部分不需要大改，按 [使用教程.md](使用教程.md) 第一部分操作即可。
 
-| 名字 | 默认值 | 说明 |
+### 第二部分：Cloudflare Plus 后台部署
+
+推荐用 Cloudflare Pages zip 上传或 Worker 单文件部署：
+
+- 新手网页部署 / zip 上传：[location-picker/cloudflare-webui](location-picker/cloudflare-webui/)
+- 命令行 Wrangler 部署：[location-picker/worker](location-picker/worker/)
+
+部署后只需要两个 Cloudflare 配置：
+
+| 配置 | 变量名 | 用途 |
 |------|--------|------|
-| `latitude` | 37.3349 | 目标纬度 |
-| `longitude` | -122.00902 | 目标经度 |
-| `address` | （空） | 地址搜索（Loon 插件 UI 填写，联网解析为经纬度，优先于手动经纬度） |
-| `horizontalAccuracy` | 39 | 水平精度 |
-| `verticalAccuracy` | 1000 | 垂直精度 |
-| `altitude` | 530 | 海拔 |
-| `failOpen` | true | 出错放行原数据 |
-| `debug` | false | 调试日志 |
+| KV 绑定 | `LOC_KV` | 保存定位、TOKEN、后台会话 |
+| Secret | `ADMIN` | 管理后台登录密码 |
+
+然后打开：
+
+```text
+https://你的域名/admin
+```
+
+登录后点击“自动生成”，后台会生成 TOKEN，并给出：
+
+```text
+地图管理地址
+Shadowrocket 小火箭模块 URL
+Loon configUrl
+当前坐标状态
+```
+
+### 第三部分：后台地图定位管理
+
+Plus 后台会直接内嵌地图，不需要再单独打开另一个页面。
+
+使用顺序：
+
+1. 进入 `/admin`。
+2. 点击“自动生成”生成 TOKEN。
+3. 后台地图自动出现。
+4. 搜索地点并点候选，或直接点地图放置图钉。
+5. 点击“保存定位”。
+6. iPhone 定位服务关闭一次再开启，让系统重新请求定位。
+
+底图说明：
+
+| 场景 | 推荐底图 |
+|------|----------|
+| 中国大陆 / 港澳台 | 高德地图、高德卫星 |
+| 海外普通选点 | OSM 地图、Carto 浅色 |
+| 海外卫星图 | Esri 卫星 |
+| 看地形 / 海拔 | OpenTopo 地形 |
+
+高德底图在海外空白是覆盖范围问题，不代表定位保存失败。
+
+## Shadowrocket 模块
+
+Plus 推荐使用后台自动生成的小火箭模块 URL：
+
+```text
+https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
+```
+
+`v2` 模块会自动写入：
+
+- 当前保存坐标作为备用值
+- `configHost`
+- `configToken`
+- 小火箭脚本地址
+
+这样网页后台保存新坐标后，小火箭读取 `/loc.json` 即可生效。
 
 ## 文件清单
 
-```
-ios-location-spoofer.sgmodule    # Shadowrocket / Surge
-ios-location-spoofer.lnplugin    # Loon
-ios-location-spoofer.snippet     # Quantumult X
-ios-location-spoofer.stoverride  # Stash
-location-spoofer.js              # 核心脚本（四平台共用）
-location-spoofer-qx.js           # QX 专用
-location-spoofer-config.json     # 配置样板
-使用教程.md                       # 小白保姆级图文教程
-location-picker/                 # 进阶（可选）：网页地图选点（Node 或 Cloudflare Worker）
-location-picker/worker/          # Cloudflare Worker 版（免 VPS，支持 Loon configUrl）
-```
-
-## 进阶：网页地图选点工具
-
-经常换定位、懒得手动查坐标改参数？项目自带 [`location-picker/`](location-picker/) 地图选点工具：点地图即定位、海拔自动、精度可调，Loon 通过 `configUrl` 读取，Shadowrocket 推荐导入 Worker 自动生成的 `shadowrocket-v2.sgmodule`。
-
-**两种部署方式：**
-
-| 方式 | 目录 | 适合 |
-|------|------|------|
-| **Cloudflare Worker / Pages**（推荐） | [`location-picker/worker/`](location-picker/worker/) / [`location-picker/cloudflare-webui/`](location-picker/cloudflare-webui/) | 免 VPS、自带 HTTPS；熟悉命令行用 Wrangler 版，不想装 npm / Wrangler 用网页后台或 zip 上传版 |
-| Node 自托管 | [`location-picker/server.js`](location-picker/server.js) | 有自己的 VPS / NAS |
-
-Cloudflare 版部署后打开 `/admin`，输入 `ADMIN` 管理密码，后台会自动生成 TOKEN，并直接给出下面这些地址。
-
-Loon 插件 **远程配置 URL** 示例：
-
-```
-https://你的worker.workers.dev/loc.json?token=你的TOKEN
+```text
+ios-location-spoofer.sgmodule           # 原始 Shadowrocket / Surge 静态模块
+ios-location-spoofer.lnplugin           # Loon 插件
+ios-location-spoofer.snippet            # Quantumult X 配置
+ios-location-spoofer.stoverride         # Stash 覆写
+location-spoofer.js                     # 核心脚本
+location-picker/cloudflare-webui/       # Plus 网页部署 / zip 上传版
+location-picker/worker/                 # Plus Wrangler Worker 版
+location-picker/server.js               # Node 自托管版，保留给 VPS/NAS 用户
+使用教程.md                              # 小白教程
 ```
 
-Shadowrocket 小火箭模块导入地址示例：
+## 安全说明
 
-```
-https://你的worker.workers.dev/shadowrocket-v2.sgmodule?token=你的TOKEN
-```
+- `/admin` 需要 `ADMIN` 管理密码。
+- 用户访问地图和模块需要 TOKEN。
+- 新版 TOKEN 优先保存在 KV，旧版 `TOKEN` Secret 仍然兼容。
+- 不要把配置服务器域名加入 Shadowrocket HTTPS 解密列表。
+- 如果开代理更新模块时 TLS 报错，给你的 Cloudflare 域名加 `DIRECT` 规则。
 
-`v2` 模块会把当前保存坐标写成备用值，并用 `configHost` / `configToken` 读取最新 `/loc.json`，比手动追加 `configUrl` 更稳。
+## 生效提醒
 
-地图页默认使用 OSM，并提供 Carto、Esri 卫星、OpenTopo、高德地图、高德卫星等底图。高德底图主要适合中国大陆、港澳台坐标；海外定位点建议使用 OSM / Carto / Esri 卫星 / OpenTopo。
-
-## 友情链接
-
-本项目接受 LINUX DO 社区佬友监督与反馈：[LINUX DO](https://linux.do)
-
-## location-picker 服务端配置
-
-`location-picker/server.js` 通过环境变量控制，**`TOKEN` 不设进程会直接退出，不会用弱口令兜底**。
-
-| 变量 | 是否必设 | 默认值 | 说明 |
-|------|---------|--------|------|
-| `TOKEN` | **必设** | 无 | 访问口令。Loon `configUrl`、Shadowrocket `shadowrocket-v2.sgmodule?token=` 都必须使用同一个 TOKEN。建议 `openssl rand -hex 24` 生成 |
-| `PORT` | 否 | `8080` | 监听端口；1024 以下需 root |
-| `CERT` | 否 | 空 | HTTPS 证书 fullchain 路径；与 `KEY` 同时设置才走 https |
-| `KEY` | 否 | 空 | HTTPS 私钥路径；与 `CERT` 同时设置才走 https |
-
-启动示例：
-
-```bash
-# http（最简，先跑通流程再用 https）
-TOKEN=$(openssl rand -hex 24) PORT=8080 node server.js
-
-# https（复用 acme.sh 证书；续期无需重启，进程每 12 小时自动热加载）
-TOKEN=$(openssl rand -hex 24) PORT=8443 \
-CERT=/root/cert/example.com/fullchain.pem \
-KEY=/root/cert/example.com/privkey.pem \
-node server.js
-```
-
-数据文件 `loc.json` 自动落在 `server.js` 同目录，记录当前坐标 / 海拔 / 精度；已在 `.gitignore` 中忽略，不会被误提交进仓库。
-
-> ⚠️ **不要把 `TOKEN` 写在命令行历史里**——推荐用 systemd 的 `Environment=` 或 `.env` + `direnv`，避免 `history` / `ps aux` 泄露。
+保存定位后，iPhone 不一定立刻重新请求定位。请关闭一次 **设置 → 隐私与安全性 → 定位服务**，等 10 秒再打开；必要时重复几次，并重开地图 App。
