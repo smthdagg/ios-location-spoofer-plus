@@ -2,7 +2,7 @@
 
 [English](#ios-location-spoofer-plus-project-manual)
 
-版本：`0.2.1-plus`  
+版本：`0.2.2-plus`
 开发者：SMTH DAGG  
 项目地址：[smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)  
 上游参考：[mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)
@@ -14,7 +14,7 @@
 手机端负责 HTTPS 解密，Cloudflare 后台负责：
 
 - 生成 TOKEN
-- 生成 Shadowrocket 小火箭模块 URL
+- 生成 Shadowrocket / Surge / Loon / Quantumult X / Stash 模块 URL
 - 保存定位坐标到 KV
 - 提供地图选点
 - 提供调试与健康检查
@@ -26,16 +26,16 @@
 完整流程如下：
 
 ```text
-iPhone Shadowrocket
+iPhone 代理工具
   → 开启 HTTPS 解密
   → 安装并信任 CA 证书
-  → 导入 Plus 后台生成的小火箭模块
+  → 导入 Plus 后台生成的对应模块
   → 拦截 Apple 定位响应
 
 Cloudflare Plus 后台
   → /admin 登录
   → 生成 TOKEN
-  → 生成 shadowrocket-v2.sgmodule URL
+  → 生成多客户端模块 URL
   → 地图选点并保存到 KV
 
 iPhone
@@ -45,13 +45,13 @@ iPhone
 
 ## 3. 手机端准备
 
-### 3.1 安装 Shadowrocket
+### 3.1 安装代理工具
 
-你需要一台 iPhone 和 Shadowrocket 小火箭。
+你需要一台 iPhone 和一个支持 HTTPS 解密、脚本重写的代理工具。Plus 后台目前生成 Shadowrocket、Surge、Loon、Quantumult X、Stash 的配置 URL。下面以 Shadowrocket 为最详细示例。
 
 ### 3.2 导入 Plus 后台生成的模块
 
-Plus 版不推荐直接导入上游静态模块。正确流程是先完成 Cloudflare 部署，在 `/admin` 生成 TOKEN，然后复制后台给出的模块 URL：
+Plus 版不推荐直接导入上游静态模块。正确流程是先完成 Cloudflare 部署，在 `/admin` 生成 TOKEN，然后复制后台给出的对应模块 URL。Shadowrocket 示例：
 
 ```text
 https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
@@ -67,6 +67,13 @@ Shadowrocket 操作：
 6. 保存并启用。
 
 后续修改定位时，不需要重新导入模块，只需要在 Plus 后台地图保存新坐标。
+
+其他客户端：
+
+- Surge：复制 `surge.sgmodule`。
+- Loon：复制 `loon.lnplugin`；`loc.json` 可作为 configUrl 排错。
+- Stash：复制 `stash.stoverride`。
+- Quantumult X：复制 `quantumultx.snippet`。QX 片段按当前坐标静态生成，后台改定位后需要重新导入或刷新片段。
 
 ### 3.3 开启 HTTPS 解密
 
@@ -165,16 +172,19 @@ https://你的域名/admin
 第一次使用时，点击“生成 TOKEN”。TOKEN 生成后，后台会显示：
 
 - 地图地址
-- Shadowrocket 小火箭模块 URL
-- Loon configUrl
+- Shadowrocket 模块 URL
+- Surge 模块 URL
+- Loon 插件 URL / configUrl
+- Quantumult X 片段 URL
+- Stash 覆写 URL
 - 当前坐标
 - KV / TOKEN 状态
 
 TOKEN 生成后日常不需要再操作。如需废弃旧模块 URL，可以点击“重新生成 TOKEN 并重置所有参数”。
 
-## 6. 导入小火箭模块
+## 6. 导入代理工具模块
 
-在后台复制：
+在后台复制你使用的代理工具模块。Shadowrocket 示例：
 
 ```text
 https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
@@ -189,7 +199,7 @@ Shadowrocket 操作：
 5. 粘贴后台生成的模块 URL。
 6. 保存并启用。
 
-导入后日常无需反复更新模块。Plus 后台保存定位后，小火箭会通过 `configHost` / `configToken` 读取 `/loc.json` 中的最新坐标。
+导入后日常无需反复更新模块。Plus 后台保存定位后，Shadowrocket、Surge、Loon、Stash 会通过 `configHost` / `configToken` 读取 `/loc.json` 中的最新坐标。Quantumult X 目前使用静态片段，后台改坐标后需要重新导入或刷新片段。
 
 如果开代理更新模块时 TLS 报错，给配置服务器域名加直连规则：
 
@@ -313,7 +323,7 @@ Copyright © 2026 SMTH DAGG.
 
 # iOS Location Spoofer Plus Project Manual
 
-Version: `0.2.1-plus`  
+Version: `0.2.2-plus`
 Developer: SMTH DAGG  
 Repository: [smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)  
 Upstream reference: [mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)
@@ -325,7 +335,7 @@ Upstream reference: [mekos2772/ios-location-spoofer](https://github.com/mekos277
 The iPhone side handles HTTPS decryption. The Cloudflare side handles:
 
 - TOKEN generation
-- Shadowrocket module URL generation
+- Shadowrocket / Surge / Loon / Quantumult X / Stash module URL generation
 - Location storage in KV
 - Map-based location picking
 - Diagnostics and health checks
@@ -335,16 +345,16 @@ The iPhone side handles HTTPS decryption. The Cloudflare side handles:
 ## 2. Project Flow
 
 ```text
-iPhone Shadowrocket
+iPhone proxy tool
   → Enable HTTPS decryption
   → Install and trust the CA certificate
-  → Import the Plus-generated Shadowrocket module
+  → Import the Plus-generated module for your client
   → Intercept Apple location responses
 
 Cloudflare Plus Dashboard
   → Log in to /admin
   → Generate TOKEN
-  → Generate shadowrocket-v2.sgmodule URL
+  → Generate multi-client module URLs
   → Pick a location and save it to KV
 
 iPhone
@@ -354,13 +364,13 @@ iPhone
 
 ## 3. iPhone Setup
 
-### 3.1 Install Shadowrocket
+### 3.1 Install A Proxy Tool
 
-You need an iPhone and the Shadowrocket app.
+You need an iPhone and a proxy tool that supports HTTPS decryption and script rewriting. Plus currently generates URLs for Shadowrocket, Surge, Loon, Quantumult X, and Stash. Shadowrocket is used as the detailed example below.
 
 ### 3.2 Import The Plus-Generated Module
 
-Plus does not recommend importing the upstream static module directly. The correct flow is to deploy Cloudflare first, generate TOKEN in `/admin`, and copy the generated module URL:
+Plus does not recommend importing the upstream static module directly. The correct flow is to deploy Cloudflare first, generate TOKEN in `/admin`, and copy the generated module URL for your client. Shadowrocket example:
 
 ```text
 https://your-domain/shadowrocket-v2.sgmodule?token=GENERATED_TOKEN
@@ -376,6 +386,13 @@ Shadowrocket steps:
 6. Save and enable it.
 
 After that, you do not need to re-import the module when changing locations. Save the new coordinates in the Plus dashboard instead.
+
+Other clients:
+
+- Surge: copy `surge.sgmodule`.
+- Loon: copy `loon.lnplugin`; `loc.json` can be used as configUrl for troubleshooting.
+- Stash: copy `stash.stoverride`.
+- Quantumult X: copy `quantumultx.snippet`. QX uses a static snippet generated from the current coordinates, so re-import or refresh it after changing locations in the dashboard.
 
 ### 3.3 Enable HTTPS Decryption
 
@@ -475,15 +492,18 @@ On first use, click “Generate TOKEN”. The dashboard will show:
 
 - Map URL
 - Shadowrocket module URL
-- Loon configUrl
+- Surge module URL
+- Loon plugin URL / configUrl
+- Quantumult X snippet URL
+- Stash override URL
 - Current coordinates
 - KV / TOKEN status
 
 After TOKEN is generated, you normally do not need to touch it again. Use “Regenerate TOKEN and reset all parameters” only when you want to invalidate old module URLs and restore default location settings.
 
-## 6. Import Shadowrocket Module
+## 6. Import Proxy Tool Module
 
-Copy from the dashboard:
+Copy the module URL for your client from the dashboard. Shadowrocket example:
 
 ```text
 https://your-domain/shadowrocket-v2.sgmodule?token=GENERATED_TOKEN
@@ -498,7 +518,7 @@ Shadowrocket steps:
 5. Paste the generated module URL.
 6. Save and enable it.
 
-You do not need to update the module repeatedly for normal location changes. The Plus module reads the latest coordinates from `/loc.json` through `configHost` / `configToken`.
+You do not need to update the module repeatedly for normal location changes. Shadowrocket, Surge, Loon, and Stash read the latest coordinates from `/loc.json` through `configHost` / `configToken`. Quantumult X currently uses a static snippet, so re-import or refresh it after changing locations.
 
 If module updates fail with TLS errors while proxy is enabled, add direct rules:
 

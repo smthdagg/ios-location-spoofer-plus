@@ -2,7 +2,7 @@
 
 中文完整教程在首页展开。English users can jump to [English Overview](#english-overview).
 
-免费的一站式 iPhone 定位管理项目。手机端使用 Shadowrocket 的 HTTPS 解密能力拦截 Apple 定位响应，Cloudflare 端提供 Plus 管理后台：首次生成 TOKEN、生成小火箭模块 URL、直接在地图上保存定位。
+免费的一站式 iPhone 定位管理项目。手机端使用支持 HTTPS 解密的代理工具拦截 Apple 定位响应，Cloudflare 端提供 Plus 管理后台：首次生成 TOKEN、生成 Shadowrocket / Surge / Loon / Quantumult X / Stash 模块 URL、直接在地图上保存定位。
 
 ![Plus 管理后台](docs/assets/admin-dashboard.png)
 
@@ -19,15 +19,15 @@ Plus 版维护：
 
 - Developer: **SMTH DAGG**
 - Repo: [smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)
-- Version: `0.2.1-plus`
+- Version: `0.2.2-plus`
 
 ## 核心功能
 
-- Shadowrocket 小火箭 HTTPS 解密与 CA 证书流程
+- Shadowrocket 小火箭 HTTPS 解密与 CA 证书流程（保留原项目手机端核心步骤）
 - Cloudflare Worker / Pages 免费部署
 - `/admin` 管理后台
 - 自动生成 TOKEN
-- 自动生成 Shadowrocket `shadowrocket-v2.sgmodule` URL
+- 自动生成 Shadowrocket、Surge、Loon、Quantumult X、Stash 配置 URL
 - 后台内嵌地图定位管理
 - OSM、Carto、Esri 卫星、OpenTopo、高德地图、高德卫星底图
 - `/health` 诊断接口
@@ -35,12 +35,12 @@ Plus 版维护：
 
 ## 完整中文教程
 
-这是一套免费的 iPhone 定位管理方案：手机上用 Shadowrocket 做 HTTPS 解密，Cloudflare 上部署一个 Plus 后台。后台首次生成 TOKEN，随后自动给出小火箭模块 URL，并直接提供地图定位管理。
+这是一套免费的 iPhone 定位管理方案：手机上用支持 HTTPS 解密的代理工具拦截 Apple 定位接口，Cloudflare 上部署一个 Plus 后台。后台首次生成 TOKEN，随后自动给出各代理工具模块 URL，并直接提供地图定位管理。
 
 教程分四部分：
 
-1. Cloudflare：安装 Plus 后台，生成自己的小火箭模块 URL。
-2. 手机端：小火箭导入后台生成的模块。
+1. Cloudflare：安装 Plus 后台，生成自己的代理工具模块 URL。
+2. 手机端：在 Shadowrocket / Surge / Loon / Quantumult X / Stash 中导入后台生成的对应模块。
 3. 手机端：HTTPS 解密、证书安装、开代理、生效。
 4. 后台：地图选点、保存定位、调试排查。
 
@@ -133,16 +133,19 @@ https://你的域名/admin
 第一次进入时点击“生成 TOKEN”，后台会生成 TOKEN，并显示：
 
 - 地图管理地址
-- Shadowrocket 小火箭模块 URL
-- Loon configUrl
+- Shadowrocket 模块 URL
+- Surge 模块 URL
+- Loon 插件 URL / configUrl
+- Quantumult X 片段 URL
+- Stash 覆写 URL
 - 当前坐标
 - KV / TOKEN 状态
 
 ![后台概览](docs/assets/admin-dashboard.png)
 
-## 第二部分：Shadowrocket 导入 Plus 模块
+## 第二部分：导入代理工具模块
 
-在 `/admin` 后台复制小火箭模块 URL，格式类似：
+在 `/admin` 后台复制你正在使用的代理工具模块 URL。Shadowrocket 格式类似：
 
 ```text
 https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
@@ -156,10 +159,17 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 4. 删除旧的测试模块、上游基础模块或旧 Plus 模块，避免多个模块互相影响。
 5. 点右上角 `+`。
 6. 选择“来自 URL”。
-7. 粘贴 `/admin` 后台生成的小火箭模块 URL。
+7. 粘贴 `/admin` 后台生成的 Shadowrocket 模块 URL。
 8. 保存并启用。
 
-以后更换定位不需要重新导入模块，只需要在 Plus 后台地图保存新位置，再关闭并开启一次 iPhone 定位服务。
+其他客户端在后台复制对应 URL 后导入：
+
+- Surge：复制 `surge.sgmodule`，按 Surge 模块方式导入。
+- Loon：复制 `loon.lnplugin` 导入插件；也可以复制 `loc.json` 作为 configUrl 排错。
+- Stash：复制 `stash.stoverride`，按 Stash Override 导入。
+- Quantumult X：复制 `quantumultx.snippet` 导入重写片段。注意 QX 片段使用当前坐标生成，后台修改坐标后需要重新导入或刷新片段。
+
+Shadowrocket、Surge、Loon、Stash 更换定位通常不需要重新导入模块，只需要在 Plus 后台地图保存新位置，再关闭并开启一次 iPhone 定位服务。
 
 如果代理开启时更新模块出现 TLS 报错，给配置服务器域名加直连：
 
@@ -301,7 +311,7 @@ https://你的域名/loc.json?token=你的TOKEN
 
 如果这里已经是新坐标，说明后台保存成功。
 
-### 3. 检查小火箭
+### 3. 检查代理工具
 
 确认：
 
@@ -309,7 +319,7 @@ https://你的域名/loc.json?token=你的TOKEN
 2. HTTPS 解密已开启。
 3. CA 证书已完全信任。
 4. MITM 域名完整。
-5. 导入的是后台生成的 `shadowrocket-v2.sgmodule`。
+5. 导入的是后台生成的对应 Plus 模块，且旧模块已经删除或停用。
 
 ### 4. 使用诊断模块
 
@@ -339,11 +349,11 @@ https://你的域名/shadowrocket-static.sgmodule?token=你的TOKEN
 
 TOKEN 不对。回到 `/admin` 复制后台生成的完整地址。
 
-### 小火箭模块导入了但定位没变化
+### 模块导入了但定位没变化
 
 按顺序检查：
 
-1. Shadowrocket 模块是否启用。
+1. 代理工具模块是否启用。
 2. HTTPS 解密是否开启。
 3. CA 证书是否完全信任。
 4. 四个 Apple / 高德定位域名是否在 MITM 列表。
@@ -360,8 +370,8 @@ iPhone 时区可能受 SIM 卡运营商影响。之前实测关闭 SIM 后，系
 Cloudflare 上传 Plus zip / Worker
 → 绑定 LOC_KV，设置 ADMIN
 → 打开 /admin，生成 TOKEN
-→ 复制小火箭模块 URL 并导入
-→ 小火箭开 HTTPS 解密 → 安装并信任 CA 证书
+→ 复制对应代理工具模块 URL 并导入
+→ 代理工具开启 HTTPS 解密 → 安装并信任 CA 证书
 → 后台地图点位置并保存
 → iPhone 定位关一次再开
 ```
@@ -376,7 +386,7 @@ Copyright © 2026 SMTH DAGG.
 
 ## English Overview
 
-`iOS Location Spoofer Plus` is a free all-in-one iPhone location management project. Shadowrocket handles HTTPS decryption on iPhone, while Cloudflare hosts the Plus admin dashboard for one-time TOKEN generation, Shadowrocket module URL generation, and map-based location management.
+`iOS Location Spoofer Plus` is a free all-in-one iPhone location management project. Supported proxy tools handle HTTPS decryption on iPhone, while Cloudflare hosts the Plus admin dashboard for one-time TOKEN generation, Shadowrocket / Surge / Loon / Quantumult X / Stash module URL generation, and map-based location management.
 
 For the full English manual, see [PROJECT_MANUAL.md](PROJECT_MANUAL.md).
 
@@ -387,8 +397,8 @@ For the full English manual, see [PROJECT_MANUAL.md](PROJECT_MANUAL.md).
 3. Set Secret `ADMIN`.
 4. Open `https://your-domain/admin`.
 5. Click “Generate TOKEN” once.
-6. Copy the generated Shadowrocket module URL into Shadowrocket.
-7. Enable HTTPS decryption in Shadowrocket and fully trust its CA certificate.
+6. Copy the generated module URL for Shadowrocket, Surge, Loon, Quantumult X, or Stash.
+7. Enable HTTPS decryption in your proxy tool and fully trust its CA certificate.
 8. Pick a location on the admin map and save it.
 9. Toggle iPhone Location Services off and on.
 

@@ -11,10 +11,15 @@
 | `/loc.json?token=` | GET | 当前坐标 JSON |
 | `/set?token=` | POST | 保存坐标 |
 | `/enable?token=` | POST | 恢复真实定位 / 再启用伪造 |
-| `/shadowrocket-v2.sgmodule?token=` | GET | 推荐的小火箭模块 |
+| `/shadowrocket-v2.sgmodule?token=` | GET | Shadowrocket 模块 |
 | `/shadowrocket.sgmodule?token=` | GET | 兼容旧链接 |
+| `/surge.sgmodule?token=` | GET | Surge 模块 |
+| `/loon.lnplugin?token=` | GET | Loon 插件 |
+| `/quantumultx.snippet?token=` | GET | Quantumult X 静态片段 |
+| `/stash.stoverride?token=` | GET | Stash 覆写 |
 | `/shadowrocket-apple.sgmodule?token=` | GET | 诊断模块：苹果总部 |
 | `/shadowrocket-static.sgmodule?token=` | GET | 诊断模块：当前 KV 坐标 |
+| `/location-spoofer-qx.js` | GET | Quantumult X 动态坐标脚本出口 |
 | `/health` | GET | 健康检查 |
 
 ## 部署
@@ -67,8 +72,11 @@ https://ios-location-spoofer-plus.你的账号.workers.dev/admin
 
 登录 `/admin` 后点击“生成 TOKEN”，后台会给出：
 
-- Shadowrocket 小火箭模块 URL
-- Loon `configUrl`
+- Shadowrocket 模块 URL
+- Surge 模块 URL
+- Loon 插件 URL / `configUrl`
+- Quantumult X 片段 URL
+- Stash 覆写 URL
 - 地图管理地址
 - 当前坐标
 - KV / TOKEN / ADMIN 状态
@@ -77,9 +85,9 @@ https://ios-location-spoofer-plus.你的账号.workers.dev/admin
 
 TOKEN 生成后日常不需要再操作。后台只保留“重新生成 TOKEN 并重置所有参数”，用于需要废弃旧模块 URL、恢复默认定位参数的情况。
 
-## Shadowrocket
+## 代理工具模块
 
-推荐从 `/admin` 复制完整模块 URL：
+推荐从 `/admin` 复制对应客户端的完整模块 URL。Shadowrocket 示例：
 
 ```text
 https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
@@ -91,6 +99,13 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 - HTTPS 解密已打开。
 - CA 证书已完全信任。
 - 保存定位后关闭再开启 iPhone 定位服务。
+
+其他客户端从后台复制对应 URL：
+
+- Surge：`surge.sgmodule`
+- Loon：`loon.lnplugin`
+- Stash：`stash.stoverride`
+- Quantumult X：`quantumultx.snippet`，这是当前坐标静态片段，后台改坐标后需要重新导入或刷新。
 
 如果开代理更新模块 TLS 报错，给你的配置服务器域名加直连：
 

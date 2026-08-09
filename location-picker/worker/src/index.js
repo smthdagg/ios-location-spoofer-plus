@@ -26,7 +26,9 @@ const DEFAULT = {
 
 const SPOOFER_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
-const APP_VERSION = "0.2.1-plus";
+const QX_SCRIPT_PATH =
+  "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer-qx.js";
+const APP_VERSION = "0.2.2-plus";
 const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer-plus";
 const UPSTREAM_REPO = "https://github.com/mekos2772/ios-location-spoofer";
 const DEVELOPER_NAME = "SMTH DAGG";
@@ -241,7 +243,7 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.url
 <div class="logo">LP</div>
 <div>
 <h1>iOS Location Spoofer Plus</h1>
-<div class="subtitle">免费 Cloudflare 一站式定位后台：首次生成 TOKEN、复制小火箭模块、直接管理地图定位。</div>
+<div class="subtitle">免费 Cloudflare 一站式定位后台：首次生成 TOKEN、复制代理工具模块、直接管理地图定位。</div>
 </div>
 </div>
 <div class="hero-actions">
@@ -267,21 +269,42 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.url
 <div id="loc" class="mono">加载中...</div>
 </div>
 </section>
-<section class="grid">
+<section class="grid link-grid">
 <div class="card">
 <h2>地图地址</h2>
 <div id="mapUrl" class="url"></div>
-<button data-copy="mapUrl">复制地图地址</button>
+<button data-copy="mapUrl" data-label="复制地图地址">复制地图地址</button>
 </div>
 <div class="card">
-<h2>小火箭模块</h2>
+<h2>Shadowrocket 模块</h2>
 <div id="srUrl" class="url"></div>
-<button data-copy="srUrl">复制模块地址</button>
+<button data-copy="srUrl" data-label="复制 Shadowrocket">复制 Shadowrocket</button>
+</div>
+<div class="card">
+<h2>Surge 模块</h2>
+<div id="surgeUrl" class="url"></div>
+<button data-copy="surgeUrl" data-label="复制 Surge">复制 Surge</button>
+</div>
+<div class="card">
+<h2>Loon 插件</h2>
+<div id="loonPluginUrl" class="url"></div>
+<button data-copy="loonPluginUrl" data-label="复制 Loon 插件">复制 Loon 插件</button>
+</div>
+<div class="card">
+<h2>Quantumult X 片段</h2>
+<div id="qxUrl" class="url"></div>
+<button data-copy="qxUrl" data-label="复制 QX 片段">复制 QX 片段</button>
+<div class="muted small">QX 使用当前坐标静态片段；后台改定位后请重新导入或刷新片段。</div>
+</div>
+<div class="card">
+<h2>Stash 覆写</h2>
+<div id="stashUrl" class="url"></div>
+<button data-copy="stashUrl" data-label="复制 Stash">复制 Stash</button>
 </div>
 <div class="card">
 <h2>Loon configUrl</h2>
-<div id="loonUrl" class="url"></div>
-<button data-copy="loonUrl">复制 configUrl</button>
+<div id="loonConfigUrl" class="url"></div>
+<button data-copy="loonConfigUrl" data-label="复制 configUrl">复制 configUrl</button>
 </div>
 </section>
 <section class="card map-card">
@@ -319,7 +342,11 @@ async function load(){
     d.loc.latitude + ', ' + d.loc.longitude + ' / 海拔 ' + d.loc.altitude + 'm';
   document.getElementById('mapUrl').textContent = d.urls.map;
   document.getElementById('srUrl').textContent = d.urls.shadowrocket;
-  document.getElementById('loonUrl').textContent = d.urls.loon;
+  document.getElementById('surgeUrl').textContent = d.urls.surge;
+  document.getElementById('loonPluginUrl').textContent = d.urls.loonPlugin;
+  document.getElementById('qxUrl').textContent = d.urls.quantumultx;
+  document.getElementById('stashUrl').textContent = d.urls.stash;
+  document.getElementById('loonConfigUrl').textContent = d.urls.loonConfig;
   const frame = document.getElementById('mapFrame');
   const hint = document.getElementById('mapHint');
   if(d.urls.map){
@@ -348,7 +375,7 @@ document.querySelectorAll('[data-copy]').forEach(btn => btn.onclick = async () =
   const text = document.getElementById(btn.dataset.copy).textContent;
   await navigator.clipboard.writeText(text);
   btn.textContent = '已复制';
-  setTimeout(()=>btn.textContent = btn.dataset.copy === 'srUrl' ? '复制模块地址' : (btn.dataset.copy === 'loonUrl' ? '复制 configUrl' : '复制地图地址'), 900);
+  setTimeout(()=>btn.textContent = btn.dataset.label || '复制', 900);
 });
 load();
 </script>
@@ -382,16 +409,35 @@ function wrapLng(lng) {
   return ((((Number(lng) + 180) % 360) + 360) % 360) - 180;
 }
 
-function moduleResponse(request, token, loc, includeBody = true) {
+function locNumbers(loc) {
+  return {
+    altitude: Number.isFinite(Number(loc.altitude)) ? Math.round(Number(loc.altitude)) : 530,
+    horizontalAccuracy: Number.isFinite(Number(loc.horizontalAccuracy)) ? Math.round(Number(loc.horizontalAccuracy)) : 39,
+    verticalAccuracy: Number.isFinite(Number(loc.verticalAccuracy)) ? Math.round(Number(loc.verticalAccuracy)) : 1000,
+  };
+}
+
+function toolUrls(origin, token) {
+  const encoded = encodeURIComponent(token);
+  return {
+    map: token ? `${origin}/?token=${encoded}` : "",
+    shadowrocket: token ? `${origin}/shadowrocket-v2.sgmodule?token=${encoded}` : "",
+    surge: token ? `${origin}/surge.sgmodule?token=${encoded}` : "",
+    loonPlugin: token ? `${origin}/loon.lnplugin?token=${encoded}` : "",
+    loonConfig: token ? `${origin}/loc.json?token=${encoded}` : "",
+    quantumultx: token ? `${origin}/quantumultx.snippet?token=${encoded}` : "",
+    stash: token ? `${origin}/stash.stoverride?token=${encoded}` : "",
+  };
+}
+
+function moduleResponse(request, token, loc, includeBody = true, clientName = "Shadowrocket / Surge") {
   const url = new URL(request.url);
   const scriptUrl = `${url.origin}/location-spoofer.js`;
-  const altitude = Number.isFinite(Number(loc.altitude)) ? Math.round(Number(loc.altitude)) : 530;
-  const horizontalAccuracy = Number.isFinite(Number(loc.horizontalAccuracy)) ? Math.round(Number(loc.horizontalAccuracy)) : 39;
-  const verticalAccuracy = Number.isFinite(Number(loc.verticalAccuracy)) ? Math.round(Number(loc.verticalAccuracy)) : 1000;
+  const { altitude, horizontalAccuracy, verticalAccuracy } = locNumbers(loc);
   return textResponse(
     includeBody ? `#!name=iOS Location Spoofer Plus
-#!desc=Apple 定位伪装 Plus。配置已绑定 ${url.origin}，后台保存后小火箭读取 /loc.json 生效。
-#!homepage=https://github.com/mekos2772/ios-location-spoofer
+#!desc=Apple 定位伪装 Plus。配置已绑定 ${url.origin}，后台保存后 ${clientName} 读取 /loc.json 生效。
+#!homepage=${PROJECT_REPO}
 
 [Script]
 iOS Location Spoofer Prepare = type=http-request,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=0,timeout=3,script-path=${scriptUrl},argument=debug=false
@@ -404,12 +450,96 @@ hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.c
   );
 }
 
+function loonPluginResponse(request, token, loc, includeBody = true) {
+  const url = new URL(request.url);
+  const scriptUrl = `${url.origin}/location-spoofer.js`;
+  const configUrl = `${url.origin}/loc.json?token=${encodeURIComponent(token)}`;
+  const { altitude } = locNumbers(loc);
+  return textResponse(
+    includeBody ? `#!name=iOS Location Spoofer Plus
+#!desc=拦截 Apple 定位服务回传坐标并读取 Plus 后台配置。Loon 插件版。
+#!homepage=${PROJECT_REPO}
+
+[Argument]
+enabled = switch,true,tag=启用定位修改,desc=关闭后脚本直接放行原始定位数据
+latitude = input,"${loc.latitude}",tag=纬度(备用),desc=后台配置读取失败时使用
+longitude = input,"${loc.longitude}",tag=经度(备用),desc=后台配置读取失败时使用
+altitude = input,"${altitude}",tag=海拔(米),desc=后台配置读取失败时使用
+address = input,"",tag=地址搜索,desc=可留空，建议直接用 Plus 后台地图管理
+configHost = input,"${url.origin}",tag=配置服务器,desc=不要末尾斜杠
+configToken = input,"${token}",tag=配置Token,desc=后台自动生成
+configUrl = input,"${configUrl}",tag=远程配置URL,desc=与 configHost/configToken 二选一，已自动填入
+debug = switch,false,tag=调试日志,desc=排错时开启，日志搜 Location spoofer
+
+[Script]
+http-request ^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$ script-path=${scriptUrl}, requires-body=false, timeout=3, tag=iOS Location Spoofer Plus Prepare, argument=[{debug}]
+http-response ^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$ script-path=${scriptUrl}, requires-body=true, binary-body-mode=true, max-size=1048576, timeout=12, tag=iOS Location Spoofer Plus, argument=[{enabled},{latitude},{longitude},{altitude},{address},{configHost},{configToken},{configUrl},{debug}]
+cron "*/5 * * * *" script-path=${scriptUrl}, timeout=30, tag=iOS Location Spoofer Plus Sync, argument=[{address},{configHost},{configToken},{configUrl},{debug}]
+
+[mitm]
+hostname = gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
+` : "",
+    "text/plain; charset=utf-8"
+  );
+}
+
+function quantumultXSnippetResponse(request, loc, includeBody = true) {
+  const url = new URL(request.url);
+  const qxScriptUrl = `${url.origin}/location-spoofer-qx.js`;
+  const { altitude, horizontalAccuracy, verticalAccuracy } = locNumbers(loc);
+  return textResponse(
+    includeBody ? `#!name=iOS Location Spoofer Plus
+#!desc=Quantumult X 静态坐标片段：${loc.latitude}, ${loc.longitude}。后台改定位后请重新导入或刷新本片段。
+#!homepage=${PROJECT_REPO}
+
+[rewrite_local]
+^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$ url script-response-body ${qxScriptUrl}?latitude=${encodeURIComponent(loc.latitude)}&longitude=${encodeURIComponent(loc.longitude)}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=false
+
+[mitm]
+hostname = gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
+` : "",
+    "text/plain; charset=utf-8"
+  );
+}
+
+function stashOverrideResponse(request, token, loc, includeBody = true) {
+  const url = new URL(request.url);
+  const scriptUrl = `${url.origin}/location-spoofer.js`;
+  const { altitude, horizontalAccuracy, verticalAccuracy } = locNumbers(loc);
+  return textResponse(
+    includeBody ? `#!name=iOS Location Spoofer Plus
+#!desc=Stash 覆写版。配置已绑定 ${url.origin}，后台保存后读取 /loc.json 生效。
+#!homepage=${PROJECT_REPO}
+
+http:
+  script:
+    - match: '^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$'
+      name: ios-location-spoofer-plus
+      type: response
+      require-body: true
+      binary-mode: true
+      max-size: 1048576
+      timeout: 10
+      argument: 'mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=false&configHost=${url.origin}&configToken=${encodeURIComponent(token)}'
+  mitm:
+    - gs-loc.apple.com
+    - gs-loc-cn.apple.com
+    - bluedot.is.autonavi.com
+    - bluedot.is.autonavi.com.gds.alibabadns.com
+
+script-providers:
+  ios-location-spoofer-plus:
+    url: '${scriptUrl}'
+    interval: 86400
+` : "",
+    "text/yaml; charset=utf-8"
+  );
+}
+
 function staticModuleResponse(request, loc, name, includeBody = true) {
   const url = new URL(request.url);
   const scriptUrl = `${url.origin}/location-spoofer.js`;
-  const altitude = Number.isFinite(Number(loc.altitude)) ? Math.round(Number(loc.altitude)) : 530;
-  const horizontalAccuracy = Number.isFinite(Number(loc.horizontalAccuracy)) ? Math.round(Number(loc.horizontalAccuracy)) : 39;
-  const verticalAccuracy = Number.isFinite(Number(loc.verticalAccuracy)) ? Math.round(Number(loc.verticalAccuracy)) : 1000;
+  const { altitude, horizontalAccuracy, verticalAccuracy } = locNumbers(loc);
   return textResponse(
     includeBody ? `#!name=${name}
 #!desc=诊断用：硬编码坐标，不读取 /loc.json。用于确认 Shadowrocket 模块和 MITM 是否真的生效。
@@ -437,6 +567,44 @@ async function scriptResponse(includeBody = true) {
     return textResponse("failed to load location-spoofer.js", "text/plain", 502);
   }
   return textResponse(await upstream.text(), "application/javascript; charset=utf-8");
+}
+
+function patchQxScript(script, request) {
+  const url = new URL(request.url);
+  const params = {
+    latitude: url.searchParams.get("latitude"),
+    longitude: url.searchParams.get("longitude"),
+    horizontalAccuracy: url.searchParams.get("horizontalAccuracy"),
+    verticalAccuracy: url.searchParams.get("verticalAccuracy"),
+    altitude: url.searchParams.get("altitude"),
+    debug: url.searchParams.get("debug"),
+  };
+  const replacements = [];
+  if (Number.isFinite(Number(params.latitude))) replacements.push(["latitude", Number(params.latitude)]);
+  if (Number.isFinite(Number(params.longitude))) replacements.push(["longitude", Number(params.longitude)]);
+  if (Number.isFinite(Number(params.horizontalAccuracy))) replacements.push(["horizontalAccuracy", Math.round(Number(params.horizontalAccuracy))]);
+  if (Number.isFinite(Number(params.verticalAccuracy))) replacements.push(["verticalAccuracy", Math.round(Number(params.verticalAccuracy))]);
+  if (Number.isFinite(Number(params.altitude))) replacements.push(["altitude", Math.round(Number(params.altitude))]);
+  if (params.debug === "true" || params.debug === "false") replacements.push(["debug", params.debug === "true"]);
+  let patched = script;
+  for (const [key, value] of replacements) {
+    const literal = typeof value === "boolean" ? String(value) : String(value);
+    patched = patched.replace(new RegExp(`(${key}:\\s*)[-0-9.]+|(${key}:\\s*)(?:true|false)`), `$1$2${literal}`);
+  }
+  return patched;
+}
+
+async function qxScriptResponse(request, includeBody = true) {
+  if (!includeBody) {
+    return textResponse("", "application/javascript; charset=utf-8");
+  }
+  const upstream = await fetch(QX_SCRIPT_PATH, {
+    cf: { cacheTtl: 3600, cacheEverything: true },
+  });
+  if (!upstream.ok) {
+    return textResponse("failed to load location-spoofer-qx.js", "text/plain", 502);
+  }
+  return textResponse(patchQxScript(await upstream.text(), request), "application/javascript; charset=utf-8");
 }
 
 export default {
@@ -499,11 +667,7 @@ export default {
         token,
         origin,
         loc,
-        urls: {
-          map: token ? `${origin}/?token=${encodeURIComponent(token)}` : "",
-          loon: token ? `${origin}/loc.json?token=${encodeURIComponent(token)}` : "",
-          shadowrocket: token ? `${origin}/shadowrocket-v2.sgmodule?token=${encodeURIComponent(token)}` : "",
-        },
+        urls: toolUrls(origin, token),
       });
     }
 
@@ -613,7 +777,39 @@ export default {
         return unauthorized(auth.error);
       }
       const loc = await readLoc(env);
-      return moduleResponse(request, await getAppToken(env), loc, request.method === "GET");
+      return moduleResponse(request, await getAppToken(env), loc, request.method === "GET", "Shadowrocket");
+    }
+
+    if (url.pathname === "/surge.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
+      if (!auth.ok) {
+        return unauthorized(auth.error);
+      }
+      const loc = await readLoc(env);
+      return moduleResponse(request, await getAppToken(env), loc, request.method === "GET", "Surge");
+    }
+
+    if (url.pathname === "/loon.lnplugin" && (request.method === "GET" || request.method === "HEAD")) {
+      if (!auth.ok) {
+        return unauthorized(auth.error);
+      }
+      const loc = await readLoc(env);
+      return loonPluginResponse(request, await getAppToken(env), loc, request.method === "GET");
+    }
+
+    if (url.pathname === "/quantumultx.snippet" && (request.method === "GET" || request.method === "HEAD")) {
+      if (!auth.ok) {
+        return unauthorized(auth.error);
+      }
+      const loc = await readLoc(env);
+      return quantumultXSnippetResponse(request, loc, request.method === "GET");
+    }
+
+    if (url.pathname === "/stash.stoverride" && (request.method === "GET" || request.method === "HEAD")) {
+      if (!auth.ok) {
+        return unauthorized(auth.error);
+      }
+      const loc = await readLoc(env);
+      return stashOverrideResponse(request, await getAppToken(env), loc, request.method === "GET");
     }
 
     if (url.pathname === "/shadowrocket-apple.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
@@ -633,6 +829,10 @@ export default {
 
     if (url.pathname === "/location-spoofer.js" && (request.method === "GET" || request.method === "HEAD")) {
       return scriptResponse(request.method === "GET");
+    }
+
+    if (url.pathname === "/location-spoofer-qx.js" && (request.method === "GET" || request.method === "HEAD")) {
+      return qxScriptResponse(request, request.method === "GET");
     }
 
     if (url.pathname === "/health") {

@@ -1,8 +1,8 @@
 # iOS Location Spoofer Plus — Cloudflare 网页部署 / Cloudflare Web Deployment
 
-这是 Plus 版推荐给新手的免费部署方式。它的目标是像 edgetunnel 一样：部署完成后进入 `/admin`，后台首次生成 TOKEN、生成小火箭模块 URL，并直接提供地图定位管理。
+这是 Plus 版推荐给新手的免费部署方式。它的目标是像 edgetunnel 一样：部署完成后进入 `/admin`，后台首次生成 TOKEN、生成 Shadowrocket / Surge / Loon / Quantumult X / Stash 模块 URL，并直接提供地图定位管理。
 
-English: This is the recommended no-code Cloudflare deployment path for Plus. Deploy it, open `/admin`, generate TOKEN once, copy the Shadowrocket module URL, and manage locations on the built-in map.
+English: This is the recommended no-code Cloudflare deployment path for Plus. Deploy it, open `/admin`, generate TOKEN once, copy the module URL for Shadowrocket, Surge, Loon, Quantumult X, or Stash, and manage locations on the built-in map.
 
 完整中英说明书见：[PROJECT_MANUAL.md](../../PROJECT_MANUAL.md)
 
@@ -11,7 +11,7 @@ English: This is the recommended no-code Cloudflare deployment path for Plus. De
 - 一个免费 Cloudflare 后台。
 - 一个 `/admin` 管理页面。
 - 首次生成的 TOKEN。
-- 自动生成的 Shadowrocket 小火箭模块 URL。
+- 自动生成的 Shadowrocket / Surge / Loon / Quantumult X / Stash 模块 URL。
 - 内嵌地图定位管理：OSM、Carto、Esri 卫星、OpenTopo、高德地图、高德卫星。
 
 ## 方式一：上传 zip 到 Cloudflare Pages
@@ -106,8 +106,11 @@ https://你的域名/admin
 
 ```text
 地图管理地址
-Shadowrocket 小火箭模块 URL
-Loon configUrl
+Shadowrocket 模块 URL
+Surge 模块 URL
+Loon 插件 URL / configUrl
+Quantumult X 片段 URL
+Stash 覆写 URL
 ```
 
 ## 一站式定位管理
@@ -121,9 +124,9 @@ Plus 后台下方会直接显示定位地图。你可以：
 
 保存后请关闭一次 iPhone 定位服务再开启。
 
-## 小火箭模块 URL
+## 代理工具模块 URL
 
-后台会生成类似：
+后台会生成各客户端 URL。Shadowrocket 示例：
 
 ```text
 https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
@@ -131,7 +134,7 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 
 把它导入 Shadowrocket → 配置 → 模块 → `+` → 来自 URL。
 
-Plus 版请使用后台生成的这个模块 URL，不要再导入上游静态 `ios-location-spoofer.sgmodule`。更换定位时只需要在后台地图保存新坐标，不需要反复重新导入模块。
+Plus 版请使用后台生成的对应模块 URL，不要再导入上游静态配置。更换定位时，Shadowrocket、Surge、Loon、Stash 只需要在后台地图保存新坐标，不需要反复重新导入模块。Quantumult X 片段使用当前坐标静态生成，后台修改坐标后需要重新导入或刷新片段。
 
 ## 地图底图说明
 
