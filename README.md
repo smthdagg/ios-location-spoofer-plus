@@ -7,7 +7,23 @@
 
 免费的一站式 iPhone 定位管理项目。手机端使用支持 HTTPS 解密的代理工具拦截 Apple 定位响应，Cloudflare 端提供 Plus 管理后台：首次生成 TOKEN、生成 Shadowrocket / Surge / Loon / Quantumult X / Stash 模块 URL、直接在地图上保存定位。
 
-![Plus 管理后台](docs/assets/admin-dashboard.png)
+## 项目预览 / Project Preview
+
+### 动态地图首页 / Animated Map Homepage
+
+公开首页以动态世界地图展示项目能力，并提供“登录系统”、工作流程和 GitHub 项目入口。演示地图不会读取或暴露 KV 中的私有定位数据。
+
+The public homepage presents the project on an animated world map with direct access to system login, workflow details, and GitHub. Demo locations never read or expose private KV coordinates.
+
+![iOS Location Spoofer Plus 动态地图首页](docs/assets/public-homepage-map.png)
+
+### 工作流程与多客户端 / Workflow and Multi-Client Support
+
+首页进一步说明 Cloudflare 部署、代理工具连接和地图选点流程，并集中展示 Shadowrocket、Surge、Loon、Quantumult X 与 Stash 支持。
+
+The overview explains Cloudflare deployment, proxy-client setup, map-based location management, and support for Shadowrocket, Surge, Loon, Quantumult X, and Stash.
+
+![iOS Location Spoofer Plus 工作流程、多客户端与项目介绍](docs/assets/public-homepage-overview.png)
 
 ## 项目定位
 
