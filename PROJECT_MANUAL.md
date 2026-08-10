@@ -2,7 +2,7 @@
 
 [English](#ios-location-spoofer-plus-project-manual)
 
-版本：`1.0.0`
+版本：`1.1.0`
 开发者：SMTH DAGG  
 项目地址：[smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)  
 上游参考：[mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)
@@ -161,6 +161,8 @@ ADMIN
 
 ## 5. 后台使用
 
+直接访问根域名 `/` 会显示公开项目首页和动态世界地图演示。演示地图不读取 KV，也不会暴露 TOKEN 或后台保存的坐标。点击“登录系统”后进入 `/admin`。
+
 打开：
 
 ```text
@@ -308,7 +310,7 @@ Copyright © 2026 SMTH DAGG.
 
 # iOS Location Spoofer Plus Project Manual
 
-Version: `1.0.0`
+Version: `1.1.0`
 Developer: SMTH DAGG  
 Repository: [smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)  
 Upstream reference: [mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)
@@ -464,6 +466,8 @@ ADMIN
 `ADMIN` is the password for `/admin`. Redeploy after saving it.
 
 ## 5. Dashboard Usage
+
+The root path `/` serves a public project homepage with an animated world-map demo. It does not read KV data or expose the TOKEN or saved coordinates. Select “Login” to continue to `/admin`.
 
 Open:
 

@@ -22,13 +22,14 @@ Plus 版维护：
 
 - Developer: **SMTH DAGG**
 - Repo: [smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)
-- Stable release: `1.0.0`
+- Stable release: `1.1.0`
 
 ## 核心功能
 
 - Shadowrocket 小火箭 HTTPS 解密与 CA 证书流程（保留原项目手机端核心步骤）
 - Cloudflare Worker / Pages 免费部署
 - `/admin` 管理后台
+- `/` 公开项目首页与动态世界地图演示（不读取私有坐标）
 - 自动生成 TOKEN
 - 自动生成 Shadowrocket、Surge、Loon、Quantumult X、Stash 配置 URL
 - 后台内嵌地图定位管理
@@ -130,6 +131,8 @@ ADMIN
 ```text
 https://你的域名/admin
 ```
+
+直接访问 `https://你的域名/` 会进入公开项目首页；点击“登录系统”才会进入 `/admin`。公开首页使用演示城市轨迹，不显示 TOKEN、KV 状态或后台保存的真实坐标。
 
 输入 `ADMIN`，进入 **iOS Location Spoofer Plus** 后台。
 

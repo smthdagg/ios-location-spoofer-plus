@@ -9,6 +9,7 @@ English: This is the recommended no-code Cloudflare deployment path for Plus. De
 ## 你最终会得到什么
 
 - 一个免费 Cloudflare 后台。
+- 一个带动态地图演示的公开项目首页。
 - 一个 `/admin` 管理页面。
 - 首次生成的 TOKEN。
 - 自动生成的 Shadowrocket / Surge / Loon / Quantumult X / Stash 模块 URL。
@@ -93,6 +94,8 @@ ADMIN
 6. 保存后重新部署。
 
 ## 进入 Plus 后台
+
+直接访问根域名会显示公开项目首页。公开地图只播放演示城市，不读取 KV 中的实际坐标；点击“登录系统”进入后台。
 
 打开：
 

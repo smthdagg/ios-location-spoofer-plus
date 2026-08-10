@@ -7,7 +7,7 @@
  *   GET  /?token=           → 地图选点网页（必须带正确 token）
  */
 
-import { PAGE } from "./page.js";
+import { LANDING_PAGE, PAGE } from "./page.js";
 
 const KV_KEY = "loc";
 const TOKEN_KEY = "settings:token";
@@ -28,7 +28,7 @@ const SPOOFER_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
 const QX_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer-qx.js";
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.1.0";
 const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer-plus";
 const UPSTREAM_REPO = "https://github.com/mekos2772/ios-location-spoofer";
 const DEVELOPER_NAME = "SMTH DAGG";
@@ -763,6 +763,9 @@ export default {
     }
 
     if ((url.pathname === "/" || url.pathname === "") && request.method === "GET") {
+      if (!url.searchParams.has("token")) {
+        return textResponse(LANDING_PAGE, "text/html; charset=utf-8");
+      }
       if (!auth.ok) {
         return unauthorized(auth.error);
       }

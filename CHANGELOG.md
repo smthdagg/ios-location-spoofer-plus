@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 - 2026-08-10
+
+### Added
+
+- A public, responsive project homepage at `/` with an animated world-map demonstration.
+- A prominent `/admin` login entry, project workflow, supported-client overview, project details, copyright, and legal-use notice.
+- Public/private route separation: `/` never reads KV location data, while `/?token=` remains the protected location manager.
+
 ## 1.0.0 - 2026-08-10
 
 First stable release of iOS Location Spoofer Plus.

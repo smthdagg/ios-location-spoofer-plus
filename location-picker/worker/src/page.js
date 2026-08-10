@@ -1,4 +1,79 @@
 // 与 location-picker/server.js 的 PAGE 保持一致（地图选点 UI）
+export const LANDING_PAGE = `<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="iOS Location Spoofer Plus - 基于 Cloudflare 的一站式 iPhone 定位管理系统">
+<title>iOS Location Spoofer Plus</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--ink:#0d172a;--blue:#0b63f6;--cyan:#08a7c9;--paper:#f6f8fc;--line:#dce4ef;--muted:#607089;--white:#fff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+a{color:inherit;text-decoration:none}
+.hero{position:relative;min-height:760px;height:92vh;overflow:hidden;background:#dce8f2}
+#worldMap{position:absolute;inset:0;z-index:0;background:#dce8f2}
+.leaflet-control-attribution{font-size:10px!important;background:rgba(255,255,255,.82)!important}
+.map-shade{position:absolute;inset:0;z-index:400;pointer-events:none;background:rgba(4,15,35,.38)}
+.shell{width:min(1180px,calc(100% - 40px));margin:0 auto}
+.nav{position:relative;z-index:500;height:88px;display:flex;align-items:center;justify-content:space-between;color:#fff;border-bottom:1px solid rgba(255,255,255,.24)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:17px}.brand-mark{width:42px;height:42px;border-radius:8px;display:grid;place-items:center;background:#fff;color:var(--blue);font-weight:900;font-size:20px;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.nav-right{display:flex;align-items:center;gap:22px;font-size:14px}.nav-link{color:#e8f2ff}.login-small{display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:1px solid rgba(255,255,255,.66);border-radius:7px;font-weight:700;background:rgba(6,22,47,.28);white-space:nowrap}
+.hero-content{position:relative;z-index:500;color:#fff;padding-top:105px;max-width:750px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:7px 11px;border:1px solid rgba(255,255,255,.45);border-radius:999px;background:rgba(9,32,67,.42);font-size:13px;font-weight:700}.live-dot{width:8px;height:8px;border-radius:50%;background:#45e28a;box-shadow:0 0 0 6px rgba(69,226,138,.16)}
+h1{font-size:64px;line-height:1.04;margin:23px 0 20px;max-width:740px}.lead{font-size:20px;line-height:1.7;color:#e5effd;max-width:690px;margin:0}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:33px}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 22px;border-radius:7px;font-weight:800}.primary{background:#fff;color:#0b4ec5;box-shadow:0 12px 30px rgba(0,0,0,.2)}.secondary{border:1px solid rgba(255,255,255,.65);color:#fff;background:rgba(5,22,48,.34)}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:56px;width:min(680px,100%);border-top:1px solid rgba(255,255,255,.34);border-bottom:1px solid rgba(255,255,255,.34)}.metric{padding:18px 24px 18px 0}.metric+.metric{padding-left:24px;border-left:1px solid rgba(255,255,255,.3)}.metric strong{display:block;font-size:22px}.metric span{display:block;color:#d9e7f7;font-size:13px;margin-top:5px}
+.map-status{position:absolute;z-index:500;right:max(24px,calc((100vw - 1180px)/2));bottom:34px;width:270px;color:#fff;background:rgba(5,20,43,.84);border:1px solid rgba(255,255,255,.28);border-radius:8px;padding:17px;box-shadow:0 14px 35px rgba(0,0,0,.24)}.status-head{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#bcd0e8}.status-city{font-size:20px;font-weight:800;margin:9px 0 3px}.status-coord{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#c8d8eb}.progress{height:3px;background:rgba(255,255,255,.18);margin-top:14px;overflow:hidden}.progress span{display:block;width:34%;height:100%;background:#34d399;animation:sweep 3.4s linear infinite}@keyframes sweep{from{transform:translateX(-110%)}to{transform:translateX(310%)}}
+.section{padding:82px 0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:28px;margin-bottom:34px}.section h2{font-size:38px;margin:0}.section-intro{max-width:590px;color:var(--muted);line-height:1.75;margin:0}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);background:#fff}.flow-item{padding:30px;min-height:225px}.flow-item+.flow-item{border-left:1px solid var(--line)}.step{font:700 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--blue)}.flow h3{font-size:21px;margin:42px 0 10px}.flow p{color:var(--muted);line-height:1.7;margin:0}
+.clients-band{background:#0d1b32;color:#fff;padding:56px 0}.clients-layout{display:grid;grid-template-columns:1fr 1.45fr;gap:64px;align-items:center}.clients-layout h2{font-size:36px;margin:0 0 13px}.clients-layout p{color:#b9c7da;line-height:1.7;margin:0}.client-list{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid #30425e}.client{padding:20px 9px;text-align:center;font-size:13px;font-weight:700}.client+.client{border-left:1px solid #30425e}.client b{display:grid;place-items:center;width:36px;height:36px;margin:0 auto 10px;border-radius:7px;background:#162d50;color:#63b3ff;font-size:15px}
+.about{display:grid;grid-template-columns:1.2fr .8fr;gap:70px;align-items:start}.about h2{font-size:36px;margin:0 0 18px}.about p{color:var(--muted);line-height:1.85;margin:0}.facts{border-top:1px solid var(--line)}.fact{display:flex;justify-content:space-between;gap:24px;padding:16px 0;border-bottom:1px solid var(--line);font-size:14px}.fact span{color:var(--muted)}.fact strong{text-align:right}
+footer{border-top:1px solid var(--line);background:#fff}.footer-inner{padding:30px 0;display:flex;justify-content:space-between;gap:30px;color:#67758a;font-size:13px;line-height:1.6}.footer-links{display:flex;gap:20px;flex-wrap:wrap}.footer-links a{color:#244d86}
+@media(max-width:820px){.hero{height:auto;min-height:760px}.shell{width:min(100% - 28px,1180px)}.nav{height:72px}.brand{gap:8px;font-size:14px}.brand-mark{width:38px;height:38px}.login-small{padding:10px 12px}.nav-link{display:none}.hero-content{padding-top:70px}.hero h1{font-size:44px}.lead{font-size:17px}.metrics{grid-template-columns:1fr}.metric,.metric+.metric{padding:13px 0;border-left:0;border-top:1px solid rgba(255,255,255,.22)}.metric:first-child{border-top:0}.map-status{display:none}.section{padding:58px 0}.section-head{display:block}.section h2{font-size:31px;margin-bottom:14px}.flow{grid-template-columns:1fr}.flow-item{min-height:0}.flow-item+.flow-item{border-left:0;border-top:1px solid var(--line)}.flow h3{margin-top:24px}.clients-layout,.about{grid-template-columns:1fr;gap:32px}.client-list{grid-template-columns:repeat(2,1fr)}.client+.client{border-left:0}.client:nth-child(even){border-left:1px solid #30425e}.client:nth-child(n+3){border-top:1px solid #30425e}.footer-inner{display:block}.footer-links{margin-top:14px}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div id="worldMap" aria-label="动态世界地图演示"></div><div class="map-shade"></div>
+  <div class="shell">
+    <nav class="nav"><a class="brand" href="/"><span class="brand-mark">LP</span><span>iOS Location Spoofer Plus</span></a><div class="nav-right"><a class="nav-link" href="#workflow">工作流程</a><a class="nav-link" href="#about">项目介绍</a><a class="login-small" href="/admin">登录系统 <span aria-hidden="true">→</span></a></div></nav>
+    <div class="hero-content">
+      <div class="eyebrow"><span class="live-dot"></span> Cloudflare 一站式定位管理</div>
+      <h1>在地图上，管理你的测试位置</h1>
+      <p class="lead">自动生成 TOKEN 与代理工具模块，通过 Cloudflare KV 动态保存坐标，在一个清晰、安全的后台中完成部署、选点与调试。</p>
+      <div class="actions"><a class="primary" href="/admin">登录系统</a><a class="secondary" href="https://github.com/smthdagg/ios-location-spoofer-plus" rel="noreferrer">查看 GitHub 项目</a></div>
+      <div class="metrics"><div class="metric"><strong>5</strong><span>代理工具配置支持</span></div><div class="metric"><strong>6</strong><span>全球与中国地图底图</span></div><div class="metric"><strong>Free</strong><span>基于 Cloudflare 免费服务</span></div></div>
+    </div>
+  </div>
+  <div class="map-status"><div class="status-head"><span>PUBLIC MAP DEMO</span><span>LIVE</span></div><div class="status-city" id="demoCity">Singapore</div><div class="status-coord" id="demoCoord">1.3521, 103.8198</div><div class="progress"><span></span></div></div>
+</header>
+<main>
+  <section class="section shell" id="workflow"><div class="section-head"><h2>从部署到生效，三步完成</h2><p class="section-intro">公开首页仅展示演示地图，不读取或显示你的真实 KV 坐标。所有管理操作都在登录后的私有后台完成。</p></div><div class="flow"><article class="flow-item"><span class="step">01 / DEPLOY</span><h3>部署 Cloudflare</h3><p>上传发行版 zip 或粘贴单文件 Worker，绑定 LOC_KV 并设置 ADMIN 管理密码。</p></article><article class="flow-item"><span class="step">02 / CONNECT</span><h3>连接代理工具</h3><p>登录后台首次生成 TOKEN，复制 Shadowrocket、Surge、Loon、Quantumult X 或 Stash 配置。</p></article><article class="flow-item"><span class="step">03 / LOCATE</span><h3>地图选点生效</h3><p>搜索地点或点击地图放置图钉，保存后关闭再开启一次 iPhone 定位服务。</p></article></div></section>
+  <section class="clients-band"><div class="shell clients-layout"><div><h2>一套后台，多种客户端</h2><p>定位数据集中保存在你自己的 Cloudflare KV。日常修改位置无需重新生成 TOKEN，动态客户端也无需反复导入模块。</p></div><div class="client-list"><div class="client"><b>SR</b>Shadowrocket</div><div class="client"><b>SG</b>Surge</div><div class="client"><b>LN</b>Loon</div><div class="client"><b>QX</b>Quantumult X</div><div class="client"><b>ST</b>Stash</div></div></div></section>
+  <section class="section shell about" id="about"><div><h2>关于 Plus</h2><p>iOS Location Spoofer Plus 将原项目的 Apple 定位响应修改能力，整合成可独立部署的 Cloudflare 管理系统。它提供后台登录、TOKEN 生命周期、模块 URL、动态坐标接口和多地图选点，同时保持核心脚本来源透明。项目面向个人研究、开发测试与合法教育用途，不提供公共定位账号，也不会在公开首页展示私有坐标。</p></div><div class="facts"><div class="fact"><span>当前版本</span><strong>v1.1.0</strong></div><div class="fact"><span>开发者</span><strong>SMTH DAGG</strong></div><div class="fact"><span>运行平台</span><strong>Cloudflare Workers + KV</strong></div><div class="fact"><span>项目许可</span><strong>MIT License</strong></div></div></section>
+</main>
+<footer><div class="shell footer-inner"><div>Copyright © 2026 SMTH DAGG. 仅供个人研究、测试与合法教育用途。</div><div class="footer-links"><a href="/admin">登录系统</a><a href="https://github.com/smthdagg/ios-location-spoofer-plus">GitHub</a><a href="https://github.com/mekos2772/ios-location-spoofer">Upstream</a></div></div></footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  if(!window.L)return;
+  var places=[{name:"Singapore",p:[1.3521,103.8198]},{name:"Hong Kong",p:[22.3193,114.1694]},{name:"London",p:[51.5072,-0.1276]},{name:"New York",p:[40.7128,-74.006]},{name:"San Francisco",p:[37.7749,-122.4194]},{name:"Tokyo",p:[35.6762,139.6503]}];
+  var map=L.map("worldMap",{zoomControl:false,attributionControl:true,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false,tap:false}).setView([24,20],3);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:20,attribution:"© OpenStreetMap © CARTO"}).addTo(map);
+  var line=L.polyline(places.map(function(x){return x.p;}),{color:"#0b63f6",weight:2,opacity:.55,dashArray:"5 9"}).addTo(map);
+  var icon=L.divIcon({className:"",html:'<div style="width:18px;height:18px;border:4px solid white;border-radius:50%;background:#0b63f6;box-shadow:0 0 0 8px rgba(11,99,246,.2),0 5px 16px rgba(0,0,0,.28)"></div>',iconSize:[18,18],iconAnchor:[9,9]});
+  var marker=L.marker(places[0].p,{icon:icon}).addTo(map),i=0;
+  function next(){i=(i+1)%places.length;var x=places[i];marker.setLatLng(x.p);map.flyTo(x.p,Math.max(map.getZoom(),3),{duration:1.8});document.getElementById("demoCity").textContent=x.name;document.getElementById("demoCoord").textContent=x.p[0].toFixed(4)+", "+x.p[1].toFixed(4);}
+  setInterval(next,3400);setTimeout(function(){map.invalidateSize();},200);
+})();
+</script>
+</body>
+</html>`;
+
 export const PAGE = `<!doctype html>
 <html lang="zh">
 <head>

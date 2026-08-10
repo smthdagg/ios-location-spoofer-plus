@@ -95,3 +95,33 @@ test("retires diagnostic modules so they cannot override the official module", a
     assert.doesNotMatch(body, /type=http-response|37\.3349|-122\.00902/);
   }
 });
+
+test("serves a public project homepage without exposing private location data", async () => {
+  const origin = "https://wloc.example.com";
+  const env = { LOC_KV: new MemoryKv() };
+  await env.LOC_KV.put("settings:token", "not-a-real-credential-1234");
+  await env.LOC_KV.put("loc", JSON.stringify({ latitude: 12.345678, longitude: 98.765432 }));
+
+  const response = await worker.fetch(new Request(`${origin}/`), env);
+  const html = await response.text();
+
+  assert.equal(response.status, 200);
+  assert.match(html, /iOS Location Spoofer Plus/);
+  assert.match(html, /href="\/admin"/);
+  assert.match(html, /id="worldMap"/);
+  assert.doesNotMatch(html, /12\.345678|98\.765432|not-a-real-credential/);
+});
+
+test("keeps the token-protected location map separate from the public homepage", async () => {
+  const origin = "https://wloc.example.com";
+  const accessCode = "not-a-real-credential-1234";
+  const env = { LOC_KV: new MemoryKv() };
+  await env.LOC_KV.put("settings:token", accessCode);
+
+  const valid = await worker.fetch(new Request(`${origin}/?token=${accessCode}`), env);
+  const invalid = await worker.fetch(new Request(`${origin}/?token=wrong-token`), env);
+
+  assert.equal(valid.status, 200);
+  assert.match(await valid.text(), /id="savebtn"/);
+  assert.equal(invalid.status, 403);
+});
