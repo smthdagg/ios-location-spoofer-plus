@@ -134,6 +134,8 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 
 把它导入 Shadowrocket → 配置 → 模块 → `+` → 来自 URL。
 
+HTTPS 解密只保留 `gs-loc.apple.com` 和 `gs-loc-cn.apple.com`。不要把高德地图瓦片域名加入 MITM。新版模块使用完整二进制响应、`max-size=0` 和 30 秒脚本超时，并直接从上游主仓库加载脚本。
+
 Plus 版请使用后台生成的对应模块 URL，不要再导入上游静态配置。更换定位时，Shadowrocket、Surge、Loon、Stash 只需要在后台地图保存新坐标，不需要反复重新导入模块。Quantumult X 片段使用当前坐标静态生成，后台修改坐标后需要重新导入或刷新片段。
 
 ## 地图底图说明

@@ -100,6 +100,8 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 - CA 证书已完全信任。
 - 保存定位后关闭再开启 iPhone 定位服务。
 
+HTTPS 解密只保留 `gs-loc.apple.com` 和 `gs-loc-cn.apple.com`。高德域名只负责地图瓦片，不应加入 MITM。生成模块使用完整二进制响应、`max-size=0` 和 30 秒超时，并直接从上游主仓库加载定位脚本。
+
 其他客户端从后台复制对应 URL：
 
 - Surge：`surge.sgmodule`

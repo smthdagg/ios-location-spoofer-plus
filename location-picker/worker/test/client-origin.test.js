@@ -55,3 +55,25 @@ test("uses CLIENT_ORIGIN for client URLs while keeping the map on the public sit
   assert.match(config.urls.shadowrocket, new RegExp(`^${clientOrigin.replaceAll(".", "\\.")}/`));
   assert.match(config.urls.loonConfig, new RegExp(`^${clientOrigin.replaceAll(".", "\\.")}/`));
 });
+
+test("generates a focused Shadowrocket WLOC response module", async () => {
+  const origin = "https://wloc.example.com";
+  const accessCode = "not-a-real-credential-1234";
+  const env = { LOC_KV: new MemoryKv() };
+  await env.LOC_KV.put("settings:token", accessCode);
+
+  const response = await worker.fetch(new Request(
+    `${origin}/shadowrocket-v2.sgmodule?token=${accessCode}`
+  ), env);
+  const moduleText = await response.text();
+
+  assert.equal(response.status, 200);
+  assert.doesNotMatch(moduleText, /type=http-request/);
+  assert.doesNotMatch(moduleText, /bluedot|autonavi/);
+  assert.match(moduleText, /type=http-response/);
+  assert.match(moduleText, /max-size=0/);
+  assert.match(moduleText, /timeout=30/);
+  assert.match(moduleText, /script-path=https:\/\/raw\.githubusercontent\.com\/mekos2772\/ios-location-spoofer\/main\/location-spoofer\.js/);
+  assert.match(moduleText, /configHost=https:\/\/wloc\.example\.com/);
+  assert.match(moduleText, /hostname = %APPEND% gs-loc\.apple\.com, gs-loc-cn\.apple\.com/);
+});

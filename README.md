@@ -204,9 +204,9 @@ DOMAIN,你的域名,PROXY
 ```text
 gs-loc.apple.com
 gs-loc-cn.apple.com
-bluedot.is.autonavi.com
-bluedot.is.autonavi.com.gds.alibabadns.com
 ```
+
+只解密以上两个 Apple WLOC 域名。高德域名仅用于网页底图，不属于 Apple 定位响应，不要加入 HTTPS 解密列表。Plus 模块使用完整二进制响应、`max-size=0` 和 30 秒脚本超时，以兼容较大的 WLOC 响应。
 
 如果没有，就手动添加。
 
@@ -465,9 +465,9 @@ In Shadowrocket, enable HTTPS decryption and make sure these MITM hostnames are 
 ```text
 gs-loc.apple.com
 gs-loc-cn.apple.com
-bluedot.is.autonavi.com
-bluedot.is.autonavi.com.gds.alibabadns.com
 ```
+
+Decrypt only these two Apple WLOC hosts. Amap hostnames are map-tile sources, not Apple location-response endpoints, and must not be added to MITM. Plus uses the complete binary response with `max-size=0` and a 30-second script timeout.
 
 #### 2.4 Install And Trust The CA Certificate
 

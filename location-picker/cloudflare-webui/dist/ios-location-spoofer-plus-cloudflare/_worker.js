@@ -242,7 +242,7 @@ const SPOOFER_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
 const QX_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer-qx.js";
-const APP_VERSION = "0.2.3-plus";
+const APP_VERSION = "0.2.4-plus";
 const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer-plus";
 const UPSTREAM_REPO = "https://github.com/mekos2772/ios-location-spoofer";
 const DEVELOPER_NAME = "SMTH DAGG";
@@ -658,7 +658,7 @@ function toolUrls(origin, token, clientOrigin = origin) {
 
 function moduleResponse(request, token, loc, includeBody = true, clientName = "Shadowrocket / Surge") {
   const url = new URL(request.url);
-  const scriptUrl = `${url.origin}/location-spoofer.js`;
+  const scriptUrl = SPOOFER_SCRIPT_PATH;
   const { altitude, horizontalAccuracy, verticalAccuracy } = locNumbers(loc);
   return textResponse(
     includeBody ? `#!name=iOS Location Spoofer Plus
@@ -666,11 +666,10 @@ function moduleResponse(request, token, loc, includeBody = true, clientName = "S
 #!homepage=${PROJECT_REPO}
 
 [Script]
-iOS Location Spoofer Prepare = type=http-request,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=0,timeout=3,script-path=${scriptUrl},argument=debug=false
-iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=${scriptUrl},argument=mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=false&configHost=${url.origin}&configToken=${encodeURIComponent(token)}
+iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/gs-loc(?:-cn)?\\.apple\\.com\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=0,timeout=30,script-path=${scriptUrl},argument=mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=false&configHost=${url.origin}&configToken=${encodeURIComponent(token)}
 
 [MITM]
-hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
+hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com
 ` : "",
     "text/plain; charset=utf-8"
   );
@@ -678,7 +677,7 @@ hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.c
 
 function loonPluginResponse(request, token, loc, includeBody = true) {
   const url = new URL(request.url);
-  const scriptUrl = `${url.origin}/location-spoofer.js`;
+  const scriptUrl = SPOOFER_SCRIPT_PATH;
   const configUrl = `${url.origin}/loc.json?token=${encodeURIComponent(token)}`;
   const { altitude } = locNumbers(loc);
   return textResponse(
@@ -698,12 +697,11 @@ configUrl = input,"${configUrl}",tag=远程配置URL,desc=与 configHost/configT
 debug = switch,false,tag=调试日志,desc=排错时开启，日志搜 Location spoofer
 
 [Script]
-http-request ^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$ script-path=${scriptUrl}, requires-body=false, timeout=3, tag=iOS Location Spoofer Plus Prepare, argument=[{debug}]
-http-response ^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$ script-path=${scriptUrl}, requires-body=true, binary-body-mode=true, max-size=1048576, timeout=12, tag=iOS Location Spoofer Plus, argument=[{enabled},{latitude},{longitude},{altitude},{address},{configHost},{configToken},{configUrl},{debug}]
+http-response ^https?:\\/\\/gs-loc(?:-cn)?\\.apple\\.com\\/clls\\/wloc(?:\\?.*)?$ script-path=${scriptUrl}, requires-body=true, binary-body-mode=true, max-size=0, timeout=30, tag=iOS Location Spoofer Plus, argument=[{enabled},{latitude},{longitude},{altitude},{address},{configHost},{configToken},{configUrl},{debug}]
 cron "*/5 * * * *" script-path=${scriptUrl}, timeout=30, tag=iOS Location Spoofer Plus Sync, argument=[{address},{configHost},{configToken},{configUrl},{debug}]
 
 [mitm]
-hostname = gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
+hostname = gs-loc.apple.com, gs-loc-cn.apple.com
 ` : "",
     "text/plain; charset=utf-8"
   );
@@ -719,10 +717,10 @@ function quantumultXSnippetResponse(request, loc, includeBody = true) {
 #!homepage=${PROJECT_REPO}
 
 [rewrite_local]
-^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$ url script-response-body ${qxScriptUrl}?latitude=${encodeURIComponent(loc.latitude)}&longitude=${encodeURIComponent(loc.longitude)}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=false
+^https?:\\/\\/gs-loc(?:-cn)?\\.apple\\.com\\/clls\\/wloc(?:\\?.*)?$ url script-response-body ${qxScriptUrl}?latitude=${encodeURIComponent(loc.latitude)}&longitude=${encodeURIComponent(loc.longitude)}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=false
 
 [mitm]
-hostname = gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
+hostname = gs-loc.apple.com, gs-loc-cn.apple.com
 ` : "",
     "text/plain; charset=utf-8"
   );
@@ -730,7 +728,7 @@ hostname = gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, blued
 
 function stashOverrideResponse(request, token, loc, includeBody = true) {
   const url = new URL(request.url);
-  const scriptUrl = `${url.origin}/location-spoofer.js`;
+  const scriptUrl = SPOOFER_SCRIPT_PATH;
   const { altitude, horizontalAccuracy, verticalAccuracy } = locNumbers(loc);
   return textResponse(
     includeBody ? `#!name=iOS Location Spoofer Plus
@@ -739,19 +737,17 @@ function stashOverrideResponse(request, token, loc, includeBody = true) {
 
 http:
   script:
-    - match: '^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$'
+    - match: '^https?:\\/\\/gs-loc(?:-cn)?\\.apple\\.com\\/clls\\/wloc(?:\\?.*)?$'
       name: ios-location-spoofer-plus
       type: response
       require-body: true
       binary-mode: true
-      max-size: 1048576
-      timeout: 10
+      max-size: 0
+      timeout: 30
       argument: 'mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=false&configHost=${url.origin}&configToken=${encodeURIComponent(token)}'
   mitm:
     - gs-loc.apple.com
     - gs-loc-cn.apple.com
-    - bluedot.is.autonavi.com
-    - bluedot.is.autonavi.com.gds.alibabadns.com
 
 script-providers:
   ios-location-spoofer-plus:
@@ -764,7 +760,7 @@ script-providers:
 
 function staticModuleResponse(request, loc, name, includeBody = true) {
   const url = new URL(request.url);
-  const scriptUrl = `${url.origin}/location-spoofer.js`;
+  const scriptUrl = SPOOFER_SCRIPT_PATH;
   const { altitude, horizontalAccuracy, verticalAccuracy } = locNumbers(loc);
   return textResponse(
     includeBody ? `#!name=${name}
@@ -772,11 +768,10 @@ function staticModuleResponse(request, loc, name, includeBody = true) {
 #!homepage=https://github.com/mekos2772/ios-location-spoofer
 
 [Script]
-iOS Location Spoofer Prepare = type=http-request,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=0,timeout=3,script-path=${scriptUrl},argument=debug=true
-iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=${scriptUrl},argument=mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=true
+iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/gs-loc(?:-cn)?\\.apple\\.com\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=0,timeout=30,script-path=${scriptUrl},argument=mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=true
 
 [MITM]
-hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
+hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com
 ` : "",
     "text/plain; charset=utf-8"
   );
