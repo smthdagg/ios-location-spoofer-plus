@@ -123,11 +123,6 @@ ADMIN
 
 新版不需要你手动生成 TOKEN。TOKEN 进入 `/admin` 后首次生成并保存到 KV。
 
-推荐再添加两个普通文本变量：
-
-- `CLIENT_ORIGIN`：手机可访问的原生 `https://名称.子域.workers.dev` 地址。
-- `SHADOWROCKET_POLICY`：Shadowrocket 配置中的代理策略组名称，例如 `PROXY` 或 `🚀 PROXY`。后台会生成可复制的配置模式规则，并写入 Shadowrocket 模块。
-
 ### 进入后台并生成模块 URL
 
 打开：
@@ -185,14 +180,11 @@ Shadowrocket、Surge、Loon、Stash 更换定位通常不需要重新导入模�
 
 如果自定义域名在手机浏览器中无法访问，动态定位也无法读取它。推荐给 Worker 增加 `CLIENT_ORIGIN` 变量，值填写该 Worker 可正常访问的原生 `workers.dev` 地址。后台网页仍使用自定义域名，但生成的模块、脚本和 `/loc.json` 会自动改走原生地址。
 
-若“全局代理可访问、配置模式不可访问”，说明配置规则把该域名送去直连。设置 `SHADOWROCKET_POLICY` 后，从后台复制生成的规则，放在远程规则集、`GEOIP` 和 `FINAL` 之前。不能写成 `DIRECT`：
+只有确认自定义域名在手机上可以访问时，才需要按实际网络策略决定走代理或直连。若“全局代理可访问、配置模式不可访问”，应让该域名走代理，不能写成 `DIRECT`：
 
 ```text
 DOMAIN,你的域名,PROXY
-DOMAIN-SUFFIX,workers.dev,PROXY
 ```
-
-使用 Worker 的 `Custom Domain` 时不需要手动创建 CNAME。Cloudflare 会自动创建 DNS 记录和证书；已经存在 CNAME 的同名主机反而无法直接绑定 Worker Custom Domain。只有部署的是 Cloudflare Pages 项目时，才按 Pages 的自定义域流程配置 CNAME。
 
 不要把你的 Cloudflare 配置服务器域名加入 HTTPS 解密列表。
 
@@ -596,14 +588,11 @@ You do not need to update the module repeatedly for normal location changes. Sha
 
 If the custom domain cannot be opened on the phone, set `CLIENT_ORIGIN` to the Worker's reachable native `workers.dev` URL. The dashboard stays on the custom domain while client modules, scripts, and `/loc.json` use the native endpoint.
 
-Set `SHADOWROCKET_POLICY` to the exact proxy policy-group name used by your Shadowrocket configuration. The dashboard and generated module will provide the routing rule. Place it before remote rule sets, `GEOIP`, and `FINAL`:
+If the domain works only in global proxy mode, route it through the proxy in configuration mode:
 
 ```text
 DOMAIN,your-domain,PROXY
-DOMAIN-SUFFIX,workers.dev,PROXY
 ```
-
-Do not manually add a CNAME for a Worker Custom Domain. Cloudflare creates the DNS record and certificate automatically. CNAME setup applies to the separate Cloudflare Pages custom-domain workflow.
 
 Do not add the Cloudflare dashboard domain to the HTTPS decryption list.
 

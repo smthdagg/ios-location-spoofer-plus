@@ -28,7 +28,7 @@ const SPOOFER_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
 const QX_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer-qx.js";
-const APP_VERSION = "0.2.4-plus";
+const APP_VERSION = "0.2.3-plus";
 const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer-plus";
 const UPSTREAM_REPO = "https://github.com/mekos2772/ios-location-spoofer";
 const DEVELOPER_NAME = "SMTH DAGG";
@@ -281,12 +281,6 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.url
 <button data-copy="srUrl" data-label="复制 Shadowrocket">复制 Shadowrocket</button>
 </div>
 <div class="card">
-<h2>Shadowrocket 配置模式规则</h2>
-<div id="routingRule" class="url"></div>
-<button data-copy="routingRule" data-label="复制分流规则">复制分流规则</button>
-<div class="muted small">放在远程规则集、GEOIP 和 FINAL 之前。全局能访问而配置模式不能访问时，必须让数据域名走代理。</div>
-</div>
-<div class="card">
 <h2>Surge 模块</h2>
 <div id="surgeUrl" class="url"></div>
 <button data-copy="surgeUrl" data-label="复制 Surge">复制 Surge</button>
@@ -349,7 +343,6 @@ async function load(){
     d.loc.latitude + ', ' + d.loc.longitude + ' / 海拔 ' + d.loc.altitude + 'm';
   document.getElementById('mapUrl').textContent = d.urls.map;
   document.getElementById('srUrl').textContent = d.urls.shadowrocket;
-  document.getElementById('routingRule').textContent = d.routing.shadowrocket || '未设置 SHADOWROCKET_POLICY；请在 Worker 变量中填写你的代理策略组名称。';
   document.getElementById('surgeUrl').textContent = d.urls.surge;
   document.getElementById('loonPluginUrl').textContent = d.urls.loonPlugin;
   document.getElementById('qxUrl').textContent = d.urls.quantumultx;
@@ -436,16 +429,6 @@ function resolveClientOrigin(env, fallbackOrigin) {
   }
 }
 
-function shadowrocketPolicy(env) {
-  const policy = String(env.SHADOWROCKET_POLICY || "").trim();
-  return policy && policy.length <= 64 && !/[,\r\n]/.test(policy) ? policy : "";
-}
-
-function shadowrocketRoutingRule(origin, policy) {
-  if (!policy) return "";
-  return `DOMAIN,${new URL(origin).hostname},${policy}`;
-}
-
 function toolUrls(origin, token, clientOrigin = origin) {
   const encoded = encodeURIComponent(token);
   return {
@@ -459,13 +442,10 @@ function toolUrls(origin, token, clientOrigin = origin) {
   };
 }
 
-function moduleResponse(request, token, loc, includeBody = true, clientName = "Shadowrocket / Surge", routingPolicy = "") {
+function moduleResponse(request, token, loc, includeBody = true, clientName = "Shadowrocket / Surge") {
   const url = new URL(request.url);
   const scriptUrl = `${url.origin}/location-spoofer.js`;
   const { altitude, horizontalAccuracy, verticalAccuracy } = locNumbers(loc);
-  const routingSection = routingPolicy
-    ? `\n[Rule]\n${shadowrocketRoutingRule(url.origin, routingPolicy)}\n`
-    : "";
   return textResponse(
     includeBody ? `#!name=iOS Location Spoofer Plus
 #!desc=Apple 定位伪装 Plus。配置已绑定 ${url.origin}，后台保存后 ${clientName} 读取 /loc.json 生效。
@@ -474,7 +454,7 @@ function moduleResponse(request, token, loc, includeBody = true, clientName = "S
 [Script]
 iOS Location Spoofer Prepare = type=http-request,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=0,timeout=3,script-path=${scriptUrl},argument=debug=false
 iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/(?:gs-loc(?:-cn)?\\.apple\\.com|bluedot\\.is\\.autonavi\\.com(?:\\.gds\\.alibabadns\\.com)?)\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=1048576,timeout=10,script-path=${scriptUrl},argument=mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=false&configHost=${url.origin}&configToken=${encodeURIComponent(token)}
-${routingSection}
+
 [MITM]
 hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com, bluedot.is.autonavi.com, bluedot.is.autonavi.com.gds.alibabadns.com
 ` : "",
@@ -693,7 +673,6 @@ export default {
       const loc = await readLoc(env);
       const origin = url.origin;
       const clientOrigin = resolveClientOrigin(env, origin);
-      const routingPolicy = shadowrocketPolicy(env);
       return jsonResponse({
         ok: true,
         kv: !!env.LOC_KV,
@@ -702,9 +681,6 @@ export default {
         origin,
         clientOrigin,
         loc,
-        routing: {
-          shadowrocket: shadowrocketRoutingRule(clientOrigin, routingPolicy),
-        },
         urls: toolUrls(origin, token, clientOrigin),
       });
     }
@@ -815,7 +791,7 @@ export default {
         return unauthorized(auth.error);
       }
       const loc = await readLoc(env);
-      return moduleResponse(request, await getAppToken(env), loc, request.method === "GET", "Shadowrocket", shadowrocketPolicy(env));
+      return moduleResponse(request, await getAppToken(env), loc, request.method === "GET", "Shadowrocket");
     }
 
     if (url.pathname === "/surge.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {

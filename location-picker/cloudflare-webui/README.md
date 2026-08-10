@@ -92,15 +92,6 @@ ADMIN
 5. 值填一个足够长的密码。
 6. 保存后重新部署。
 
-## 推荐配置：手机数据通道和分流策略
-
-在 `Variables and Secrets` 增加两个普通文本变量：
-
-- `CLIENT_ORIGIN`：原生 `https://名称.子域.workers.dev` 地址。
-- `SHADOWROCKET_POLICY`：小火箭配置中的代理策略组名称，例如 `PROXY` 或 `🚀 PROXY`。
-
-后台会用原生地址生成模块和动态坐标 URL，并生成配置模式分流规则。规则必须放在远程规则集、`GEOIP` 和 `FINAL` 之前。
-
 ## 进入 Plus 后台
 
 打开：
@@ -192,9 +183,6 @@ TOKEN 不对，回 `/admin` 复制完整链接。
 
 ```text
 DOMAIN,你的域名,PROXY
-DOMAIN-SUFFIX,workers.dev,PROXY
 ```
 
 不要把你的 Cloudflare 后台域名加入 Shadowrocket HTTPS 解密列表。
-
-Worker Custom Domain 不需要手动增加 CNAME：Cloudflare 会自动创建 DNS 和证书。已有同名 CNAME 还会阻止 Custom Domain 绑定。Pages 项目才使用 Pages 的 CNAME 流程。
