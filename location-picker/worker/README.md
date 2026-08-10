@@ -48,6 +48,15 @@ npx wrangler secret put ADMIN
 
 输入一个足够长的后台管理密码。
 
+推荐在 `wrangler.jsonc` 的 `vars` 中设置：
+
+```json
+"vars": {
+  "CLIENT_ORIGIN": "https://你的-worker.你的子域.workers.dev",
+  "SHADOWROCKET_POLICY": "你的代理策略组名称"
+}
+```
+
 新版不要求手动设置 `TOKEN`。进入 `/admin` 后首次生成 TOKEN 并保存到 KV。旧部署如果已经设置过 `TOKEN` Secret，仍然兼容。
 
 ### 4. 部署
@@ -113,7 +122,10 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 
 ```text
 DOMAIN,你的域名,PROXY
+DOMAIN-SUFFIX,workers.dev,PROXY
 ```
+
+规则必须放在远程规则集、`GEOIP` 和 `FINAL` 前。Worker Custom Domain 会由 Cloudflare 自动创建 DNS 与证书，不要再手动增加同名 CNAME。
 
 ## 地图底图
 
