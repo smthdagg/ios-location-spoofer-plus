@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 - 2026-08-10
+
+### Improved
+
+- Redesigned the admin console to match the public homepage visual system.
+- Replaced module cards with seven full-width tool rows for faster scanning and copying.
+- Added responsive mobile layouts for module URLs and actions.
+- Redesigned the administrator login page with a clear project identity and return-home link.
+
 ## 1.1.0 - 2026-08-10
 
 ### Added

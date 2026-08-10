@@ -54,7 +54,7 @@ footer{border-top:1px solid var(--line);background:#fff}.footer-inner{padding:30
 <main>
   <section class="section shell" id="workflow"><div class="section-head"><h2>从部署到生效，三步完成</h2><p class="section-intro">公开首页仅展示演示地图，不读取或显示你的真实 KV 坐标。所有管理操作都在登录后的私有后台完成。</p></div><div class="flow"><article class="flow-item"><span class="step">01 / DEPLOY</span><h3>部署 Cloudflare</h3><p>上传发行版 zip 或粘贴单文件 Worker，绑定 LOC_KV 并设置 ADMIN 管理密码。</p></article><article class="flow-item"><span class="step">02 / CONNECT</span><h3>连接代理工具</h3><p>登录后台首次生成 TOKEN，复制 Shadowrocket、Surge、Loon、Quantumult X 或 Stash 配置。</p></article><article class="flow-item"><span class="step">03 / LOCATE</span><h3>地图选点生效</h3><p>搜索地点或点击地图放置图钉，保存后关闭再开启一次 iPhone 定位服务。</p></article></div></section>
   <section class="clients-band"><div class="shell clients-layout"><div><h2>一套后台，多种客户端</h2><p>定位数据集中保存在你自己的 Cloudflare KV。日常修改位置无需重新生成 TOKEN，动态客户端也无需反复导入模块。</p></div><div class="client-list"><div class="client"><b>SR</b>Shadowrocket</div><div class="client"><b>SG</b>Surge</div><div class="client"><b>LN</b>Loon</div><div class="client"><b>QX</b>Quantumult X</div><div class="client"><b>ST</b>Stash</div></div></div></section>
-  <section class="section shell about" id="about"><div><h2>关于 Plus</h2><p>iOS Location Spoofer Plus 将原项目的 Apple 定位响应修改能力，整合成可独立部署的 Cloudflare 管理系统。它提供后台登录、TOKEN 生命周期、模块 URL、动态坐标接口和多地图选点，同时保持核心脚本来源透明。项目面向个人研究、开发测试与合法教育用途，不提供公共定位账号，也不会在公开首页展示私有坐标。</p></div><div class="facts"><div class="fact"><span>当前版本</span><strong>v1.1.0</strong></div><div class="fact"><span>开发者</span><strong>SMTH DAGG</strong></div><div class="fact"><span>运行平台</span><strong>Cloudflare Workers + KV</strong></div><div class="fact"><span>项目许可</span><strong>MIT License</strong></div></div></section>
+  <section class="section shell about" id="about"><div><h2>关于 Plus</h2><p>iOS Location Spoofer Plus 将原项目的 Apple 定位响应修改能力，整合成可独立部署的 Cloudflare 管理系统。它提供后台登录、TOKEN 生命周期、模块 URL、动态坐标接口和多地图选点，同时保持核心脚本来源透明。项目面向个人研究、开发测试与合法教育用途，不提供公共定位账号，也不会在公开首页展示私有坐标。</p></div><div class="facts"><div class="fact"><span>当前版本</span><strong>v1.2.0</strong></div><div class="fact"><span>开发者</span><strong>SMTH DAGG</strong></div><div class="fact"><span>运行平台</span><strong>Cloudflare Workers + KV</strong></div><div class="fact"><span>项目许可</span><strong>MIT License</strong></div></div></section>
 </main>
 <footer><div class="shell footer-inner"><div>Copyright © 2026 SMTH DAGG. 仅供个人研究、测试与合法教育用途。</div><div class="footer-links"><a href="/admin">登录系统</a><a href="https://github.com/smthdagg/ios-location-spoofer-plus">GitHub</a><a href="https://github.com/mekos2772/ios-location-spoofer">Upstream</a></div></div></footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -317,7 +317,7 @@ const SPOOFER_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
 const QX_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer-qx.js";
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.2.0";
 const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer-plus";
 const UPSTREAM_REPO = "https://github.com/mekos2772/ios-location-spoofer";
 const DEVELOPER_NAME = "SMTH DAGG";
@@ -474,22 +474,22 @@ function loginPage(error = "") {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>iOS Location Spoofer Plus 后台登录</title>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f6f8fa;margin:0;min-height:100vh;display:grid;place-items:center;color:#1f2328}
-form{background:#fff;width:min(92vw,380px);padding:28px;border:1px solid #d8dee4;border-radius:10px;box-shadow:0 8px 24px rgba(140,149,159,.18)}
-h1{font-size:22px;margin:0 0 18px}
-input,button{box-sizing:border-box;width:100%;font-size:16px;border-radius:8px}
-input{border:1px solid #d0d7de;padding:12px;margin:8px 0 14px}
-button{border:0;background:#0969da;color:#fff;padding:12px;font-weight:700}
-.err{color:#d1242f;font-size:14px;min-height:20px}
+:root{--navy:#0d1b32;--blue:#0b63f6;--line:#dce4ef;--muted:#64748b}
+*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#eef3f9;margin:0;min-height:100vh;display:grid;grid-template-columns:minmax(320px,1fr) minmax(360px,520px);color:#0d172a}
+.login-intro{background:var(--navy);color:#fff;padding:64px max(7vw,36px);display:flex;flex-direction:column;justify-content:space-between}.login-brand{display:flex;align-items:center;gap:12px;font-weight:800}.login-logo{width:44px;height:44px;border-radius:8px;background:#fff;color:var(--blue);display:grid;place-items:center;font-size:20px;font-weight:900}.login-copy h1{font-size:44px;line-height:1.15;margin:0 0 18px}.login-copy p{max-width:560px;color:#bed0e7;font-size:17px;line-height:1.75}.login-meta{color:#8fa7c5;font-size:13px}
+.login-side{display:grid;place-items:center;padding:32px}.login-box{width:min(100%,390px)}.login-box .eyebrow{color:var(--blue);font-size:12px;font-weight:800}.login-box h2{font-size:29px;margin:10px 0 8px}.login-box .hint{color:var(--muted);line-height:1.65;margin-bottom:24px}
+input,button{box-sizing:border-box;width:100%;font-size:16px;border-radius:7px}input{border:1px solid #cbd6e4;padding:13px 14px;margin:8px 0 14px;background:#fff}input:focus{outline:3px solid #d8e8ff;border-color:var(--blue)}button{border:0;background:var(--blue);color:#fff;padding:13px;font-weight:800;cursor:pointer}.err{color:#c81e1e;font-size:14px;min-height:22px}.back{display:inline-block;margin-top:18px;color:#4b6484;font-size:14px;text-decoration:none}
+@media(max-width:760px){body{display:block}.login-intro{padding:24px 20px;min-height:220px}.login-copy h1{font-size:30px;margin-top:42px}.login-copy p,.login-meta{display:none}.login-side{padding:42px 20px}}
 </style>
 </head>
 <body>
-<form method="post" action="/admin/login">
-<h1>iOS Location Spoofer Plus 后台</h1>
+<section class="login-intro"><div class="login-brand"><span class="login-logo">LP</span><span>iOS Location Spoofer Plus</span></div><div class="login-copy"><h1>定位管理，从这里开始</h1><p>登录你自己的 Cloudflare 后台，管理 TOKEN、客户端模块与地图定位。公开首页和私有坐标数据始终保持分离。</p></div><div class="login-meta">Cloudflare Workers + KV · v${APP_VERSION}</div></section>
+<section class="login-side"><form class="login-box" method="post" action="/admin/login">
+<div class="eyebrow">ADMIN CONSOLE</div><h2>登录系统</h2><div class="hint">请输入部署时设置的 ADMIN 管理密码。</div>
 <div class="err">${htmlEscape(error)}</div>
 <input name="admin" type="password" autocomplete="current-password" placeholder="输入 ADMIN 管理密码" autofocus>
-<button type="submit">进入后台</button>
-</form>
+<button type="submit">进入管理后台</button><a class="back" href="/">← 返回项目首页</a>
+</form></section>
 </body>
 </html>`, "text/html; charset=utf-8", error ? 403 : 200);
 }
@@ -502,27 +502,27 @@ function adminPage() {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>iOS Location Spoofer Plus 管理后台</title>
 <style>
-:root{color-scheme:light;--bg:#f4f7fb;--panel:#fff;--line:#dbe3ee;--text:#111827;--muted:#667085;--blue:#0f6bff;--green:#15803d;--red:#dc2626;--soft:#f8fafc}
+:root{color-scheme:light;--bg:#f3f6fa;--panel:#fff;--navy:#0d1b32;--navy2:#162d50;--line:#dce4ef;--text:#0d172a;--muted:#66758b;--blue:#0b63f6;--green:#15803d;--red:#dc2626;--soft:#f6f8fb}
 *{box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:radial-gradient(circle at top left,#eaf2ff 0,#f6f8fb 38%,#eef2f7 100%);color:var(--text)}
-main{max-width:1180px;margin:0 auto;padding:28px 18px 38px}
-.hero{background:linear-gradient(135deg,#101828 0%,#1d4ed8 58%,#06b6d4 100%);border-radius:18px;padding:26px;color:#fff;box-shadow:0 18px 45px rgba(15,23,42,.18);display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
-.brand{display:flex;gap:14px;align-items:flex-start}.logo{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:26px;font-weight:900}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--text)}
+main{max-width:1240px;margin:0 auto;padding:24px 20px 38px}
+.hero{background:var(--navy);border-radius:8px;padding:25px 27px;color:#fff;box-shadow:0 14px 34px rgba(13,27,50,.14);display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.brand{display:flex;gap:14px;align-items:flex-start}.logo{width:48px;height:48px;border-radius:8px;background:#fff;color:var(--blue);display:grid;place-items:center;font-size:22px;font-weight:900}
 h1{font-size:30px;line-height:1.1;margin:0 0 8px}.subtitle{max-width:720px;color:#dbeafe;font-size:16px;line-height:1.55}.hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.14);color:#fff;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:700}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}.link-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-.card{background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
-.card h2{font-size:18px;margin:0 0 13px;letter-spacing:.01em}.muted{color:var(--muted);line-height:1.55}.small{font-size:13px}
-input,button{font-size:15px;border-radius:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #425675;background:var(--navy2);color:#fff;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:19px;box-shadow:0 7px 22px rgba(15,23,42,.045)}
+.card h2{font-size:18px;margin:0 0 13px}.muted{color:var(--muted);line-height:1.55}.small{font-size:13px}
+input,button{font-size:15px;border-radius:7px}
 input{width:100%;border:1px solid var(--line);padding:11px 12px;margin:5px 0 12px;background:#fff;color:var(--text)}
 button{border:0;background:var(--blue);color:#fff;padding:11px 15px;font-weight:800;margin:4px 8px 4px 0;box-shadow:0 8px 18px rgba(15,107,255,.2);cursor:pointer}
 button:hover{filter:brightness(.97)}button.secondary{background:#475467;box-shadow:none}button.danger{background:var(--red);box-shadow:0 8px 18px rgba(220,38,38,.2)}
-code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.url{word-break:break-all;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:70px;margin:8px 0 12px;line-height:1.45;color:#1f2937}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 9px;font-size:13px;font-weight:800;margin:0 4px 6px 0}.badge.ok{background:#dcfce7;color:var(--green)}.badge.bad{background:#fee2e2;color:var(--red)}
-.status-line{margin:7px 0}.map-card{margin-top:18px;padding:18px}.map-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:10px}
-#mapFrame{display:none;width:100%;height:min(76vh,760px);border:1px solid var(--line);border-radius:14px;background:#fff}
-.footer{margin-top:22px;padding:18px;color:#667085;font-size:13px;line-height:1.6}.footer a{color:#175cd3;text-decoration:none;font-weight:700}.legal{margin-top:8px;border-top:1px solid var(--line);padding-top:10px}
-@media (max-width:900px){.hero{display:block}.hero-actions{justify-content:flex-start;margin-top:16px}.grid,.link-grid{grid-template-columns:1fr}h1{font-size:25px}main{padding:14px}.map-head{display:block}#mapFrame{height:70vh}}
+.status-line{margin:7px 0}.module-panel{margin-top:16px;padding:0;overflow:hidden}.module-head{display:flex;justify-content:space-between;gap:18px;align-items:end;padding:22px 24px;border-bottom:1px solid var(--line)}.module-head h2{font-size:22px;margin:0 0 5px}.module-list{display:block}.module-row{display:grid;grid-template-columns:220px minmax(0,1fr) 132px;gap:18px;align-items:center;padding:17px 24px}.module-row+.module-row{border-top:1px solid var(--line)}.tool{display:flex;align-items:center;gap:13px}.tool-icon{width:42px;height:42px;border-radius:7px;background:#eaf2ff;color:var(--blue);display:grid;place-items:center;font-weight:900;font-size:13px;flex:0 0 auto}.tool strong{display:block;font-size:15px}.tool span{display:block;color:var(--muted);font-size:12px;margin-top:3px}.module-url{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--soft);border:1px solid var(--line);border-radius:7px;padding:11px 13px;color:#334155;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.copy-btn{width:100%;margin:0;box-shadow:none}.module-note{grid-column:2/4;color:var(--muted);font-size:12px;margin-top:-9px}
+.map-card{margin-top:16px;padding:20px}.map-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:12px}#mapFrame{display:none;width:100%;height:min(76vh,760px);border:1px solid var(--line);border-radius:7px;background:#fff}
+.footer{margin-top:18px;padding:20px;color:#66758b;font-size:13px;line-height:1.6}.footer a{color:#175cd3;text-decoration:none;font-weight:700}.legal{margin-top:10px;border-top:1px solid var(--line);padding-top:11px}
+@media (max-width:900px){.hero{display:block}.hero-actions{justify-content:flex-start;margin-top:16px}.grid{grid-template-columns:1fr}h1{font-size:25px}main{padding:12px}.module-head,.map-head{display:block}.module-row{grid-template-columns:1fr;padding:16px}.module-url{white-space:normal;word-break:break-all}.module-note{grid-column:auto;margin-top:-7px}.copy-btn{width:auto;justify-self:start}#mapFrame{height:70vh}}
 </style>
 </head>
 <body>
@@ -558,42 +558,16 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.url
 <div id="loc" class="mono">加载中...</div>
 </div>
 </section>
-<section class="grid link-grid">
-<div class="card">
-<h2>地图地址</h2>
-<div id="mapUrl" class="url"></div>
-<button data-copy="mapUrl" data-label="复制地图地址">复制地图地址</button>
-</div>
-<div class="card">
-<h2>Shadowrocket 模块</h2>
-<div id="srUrl" class="url"></div>
-<button data-copy="srUrl" data-label="复制 Shadowrocket">复制 Shadowrocket</button>
-</div>
-<div class="card">
-<h2>Surge 模块</h2>
-<div id="surgeUrl" class="url"></div>
-<button data-copy="surgeUrl" data-label="复制 Surge">复制 Surge</button>
-</div>
-<div class="card">
-<h2>Loon 插件</h2>
-<div id="loonPluginUrl" class="url"></div>
-<button data-copy="loonPluginUrl" data-label="复制 Loon 插件">复制 Loon 插件</button>
-</div>
-<div class="card">
-<h2>Quantumult X 片段</h2>
-<div id="qxUrl" class="url"></div>
-<button data-copy="qxUrl" data-label="复制 QX 片段">复制 QX 片段</button>
-<div class="muted small">QX 使用当前坐标静态片段；后台改定位后请重新导入或刷新片段。</div>
-</div>
-<div class="card">
-<h2>Stash 覆写</h2>
-<div id="stashUrl" class="url"></div>
-<button data-copy="stashUrl" data-label="复制 Stash">复制 Stash</button>
-</div>
-<div class="card">
-<h2>Loon configUrl</h2>
-<div id="loonConfigUrl" class="url"></div>
-<button data-copy="loonConfigUrl" data-label="复制 configUrl">复制 configUrl</button>
+<section class="card module-panel">
+<div class="module-head"><div><h2>客户端接入</h2><div class="muted">每个工具一条配置。复制完整 URL 后，在对应客户端中导入。</div></div><span class="badge ok">TOKEN 保护</span></div>
+<div class="module-list">
+<div class="module-row"><div class="tool"><b class="tool-icon">MAP</b><div><strong>地图管理地址</strong><span>独立打开定位地图</span></div></div><div id="mapUrl" class="module-url"></div><button class="copy-btn" data-copy="mapUrl" data-label="复制地图地址">复制地址</button></div>
+<div class="module-row"><div class="tool"><b class="tool-icon">SR</b><div><strong>Shadowrocket</strong><span>动态定位模块</span></div></div><div id="srUrl" class="module-url"></div><button class="copy-btn" data-copy="srUrl" data-label="复制 Shadowrocket">复制模块</button></div>
+<div class="module-row"><div class="tool"><b class="tool-icon">SG</b><div><strong>Surge</strong><span>动态定位模块</span></div></div><div id="surgeUrl" class="module-url"></div><button class="copy-btn" data-copy="surgeUrl" data-label="复制 Surge">复制模块</button></div>
+<div class="module-row"><div class="tool"><b class="tool-icon">LN</b><div><strong>Loon</strong><span>动态定位插件</span></div></div><div id="loonPluginUrl" class="module-url"></div><button class="copy-btn" data-copy="loonPluginUrl" data-label="复制 Loon 插件">复制插件</button></div>
+<div class="module-row"><div class="tool"><b class="tool-icon">QX</b><div><strong>Quantumult X</strong><span>当前坐标静态片段</span></div></div><div id="qxUrl" class="module-url"></div><button class="copy-btn" data-copy="qxUrl" data-label="复制 QX 片段">复制片段</button><div class="module-note">后台修改定位后，请重新导入或刷新 Quantumult X 片段。</div></div>
+<div class="module-row"><div class="tool"><b class="tool-icon">ST</b><div><strong>Stash</strong><span>动态定位覆写</span></div></div><div id="stashUrl" class="module-url"></div><button class="copy-btn" data-copy="stashUrl" data-label="复制 Stash">复制覆写</button></div>
+<div class="module-row"><div class="tool"><b class="tool-icon">URL</b><div><strong>Loon configUrl</strong><span>远程坐标数据接口</span></div></div><div id="loonConfigUrl" class="module-url"></div><button class="copy-btn" data-copy="loonConfigUrl" data-label="复制 configUrl">复制 URL</button></div>
 </div>
 </section>
 <section class="card map-card">

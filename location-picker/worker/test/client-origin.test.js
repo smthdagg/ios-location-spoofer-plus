@@ -125,3 +125,21 @@ test("keeps the token-protected location map separate from the public homepage",
   assert.match(await valid.text(), /id="savebtn"/);
   assert.equal(invalid.status, 403);
 });
+
+test("renders one horizontal module row per dashboard tool", async () => {
+  const origin = "https://wloc.example.com";
+  const env = { ADMIN: "test-password", LOC_KV: new MemoryKv() };
+  const cookie = await login(env, origin);
+
+  const response = await worker.fetch(new Request(`${origin}/admin`, {
+    headers: { Cookie: cookie },
+  }), env);
+  const html = await response.text();
+
+  assert.equal(response.status, 200);
+  assert.equal((html.match(/class="module-row"/g) || []).length, 7);
+  assert.match(html, /客户端接入/);
+  assert.match(html, /Shadowrocket/);
+  assert.match(html, /Quantumult X/);
+  assert.match(html, /class="copy-btn"/);
+});

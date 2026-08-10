@@ -2,7 +2,7 @@
 
 [English](#ios-location-spoofer-plus-project-manual)
 
-版本：`1.1.0`
+版本：`1.2.0`
 开发者：SMTH DAGG  
 项目地址：[smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)  
 上游参考：[mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)
@@ -310,7 +310,7 @@ Copyright © 2026 SMTH DAGG.
 
 # iOS Location Spoofer Plus Project Manual
 
-Version: `1.1.0`
+Version: `1.2.0`
 Developer: SMTH DAGG  
 Repository: [smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)  
 Upstream reference: [mekos2772/ios-location-spoofer](https://github.com/mekos2772/ios-location-spoofer)

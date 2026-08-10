@@ -38,7 +38,7 @@ Plus 版维护：
 
 - Developer: **SMTH DAGG**
 - Repo: [smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)
-- Stable release: `1.1.0`
+- Stable release: `1.2.0`
 
 ## 核心功能
 
