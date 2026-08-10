@@ -163,13 +163,15 @@ https://你的域名/admin
 - 当前坐标
 - KV / TOKEN 状态
 
-![后台概览](docs/assets/admin-dashboard.png)
+![v1.2.0 后台概览与客户端接入](docs/assets/admin-dashboard.png)
 
 ## 第二部分：导入代理工具模块
 
 后台会把地图地址和各代理工具模块集中展示，复制对应客户端的 URL 即可。
 
-![多代理工具模块](docs/assets/proxy-modules.png)
+`v1.2.0` 将客户端配置统一为横排列表，一行对应一个工具，并在右侧提供固定复制按钮。
+
+![Shadowrocket、Surge、Loon、Quantumult X 与 Stash 横排配置](docs/assets/admin-dashboard.png)
 
 在 `/admin` 后台复制你正在使用的代理工具模块 URL。Shadowrocket 格式类似：
 
@@ -243,7 +245,7 @@ gs-loc-cn.apple.com
 
 Plus 后台把地图也作为管理后台的一部分，不需要再单独打开另一个页面。
 
-![地图定位管理](docs/assets/location-map.png)
+![v1.2.0 地图定位管理、保存提醒与项目页脚](docs/assets/location-map.png)
 
 ### 1. 在后台地图选点
 
@@ -405,7 +407,7 @@ The iPhone side handles HTTPS decryption. The Cloudflare side handles:
 - Map-based location picking
 - Health checks and conflict-safe module retirement
 
-![Plus Admin Dashboard](docs/assets/admin-dashboard.png)
+![Plus v1.2.0 Admin Dashboard](docs/assets/admin-dashboard.png)
 
 ### 1. Project Flow
 
@@ -566,7 +568,9 @@ On first use, click “Generate TOKEN”. The dashboard will show:
 
 After TOKEN is generated, you normally do not need to touch it again. Use “Regenerate TOKEN and reset all parameters” only when you want to invalidate old module URLs and restore default location settings.
 
-![Multi-Client Module URLs](docs/assets/proxy-modules.png)
+Version `1.2.0` presents client configurations as full-width rows, one tool per row, with a dedicated copy action.
+
+![Horizontal configurations for Shadowrocket, Surge, Loon, Quantumult X, and Stash](docs/assets/admin-dashboard.png)
 
 ### 5. Import Proxy Tool Module
 
@@ -591,7 +595,7 @@ The standard setup requires no custom `DIRECT`, `PROXY`, Fake-IP, DNS, or CNAME 
 
 ### 6. Map Location Manager
 
-![Map Location Manager](docs/assets/location-map.png)
+![Plus v1.2.0 Map Manager, save reminders, and project footer](docs/assets/location-map.png)
 
 Supported layers:
 
