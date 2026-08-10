@@ -107,11 +107,12 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 - Stash：`stash.stoverride`
 - Quantumult X：`quantumultx.snippet`，这是当前坐标静态片段，后台改坐标后需要重新导入或刷新。
 
-如果开代理更新模块 TLS 报错，给你的配置服务器域名加直连：
+如果自定义域名在手机浏览器无法访问，在 Worker 变量中设置 `CLIENT_ORIGIN=https://你的-worker.你的子域.workers.dev`。后台仍可使用自定义域名，手机模块和动态坐标会改用原生地址。
+
+若全局代理能访问、配置模式不能访问，则该域名必须走代理：
 
 ```text
-DOMAIN,你的域名,DIRECT
-DOMAIN-SUFFIX,workers.dev,DIRECT
+DOMAIN,你的域名,PROXY
 ```
 
 ## 地图底图

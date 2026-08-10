@@ -178,11 +178,12 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 
 Shadowrocket、Surge、Loon、Stash 更换定位通常不需要重新导入模块，只需要在 Plus 后台地图保存新位置，再关闭并开启一次 iPhone 定位服务。
 
-如果代理开启时更新模块出现 TLS 报错，给配置服务器域名加直连：
+如果自定义域名在手机浏览器中无法访问，动态定位也无法读取它。推荐给 Worker 增加 `CLIENT_ORIGIN` 变量，值填写该 Worker 可正常访问的原生 `workers.dev` 地址。后台网页仍使用自定义域名，但生成的模块、脚本和 `/loc.json` 会自动改走原生地址。
+
+只有确认自定义域名在手机上可以访问时，才需要按实际网络策略决定走代理或直连。若“全局代理可访问、配置模式不可访问”，应让该域名走代理，不能写成 `DIRECT`：
 
 ```text
-DOMAIN,你的域名,DIRECT
-DOMAIN-SUFFIX,workers.dev,DIRECT
+DOMAIN,你的域名,PROXY
 ```
 
 不要把你的 Cloudflare 配置服务器域名加入 HTTPS 解密列表。
@@ -585,11 +586,12 @@ Shadowrocket steps:
 
 You do not need to update the module repeatedly for normal location changes. Shadowrocket, Surge, Loon, and Stash read the latest coordinates from `/loc.json` through `configHost` / `configToken`. Quantumult X currently uses a static snippet, so re-import or refresh it after changing locations.
 
-If module updates fail with TLS errors while proxy is enabled, add direct rules:
+If the custom domain cannot be opened on the phone, set `CLIENT_ORIGIN` to the Worker's reachable native `workers.dev` URL. The dashboard stays on the custom domain while client modules, scripts, and `/loc.json` use the native endpoint.
+
+If the domain works only in global proxy mode, route it through the proxy in configuration mode:
 
 ```text
-DOMAIN,your-domain,DIRECT
-DOMAIN-SUFFIX,workers.dev,DIRECT
+DOMAIN,your-domain,PROXY
 ```
 
 Do not add the Cloudflare dashboard domain to the HTTPS decryption list.

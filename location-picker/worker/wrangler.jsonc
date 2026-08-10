@@ -4,6 +4,8 @@
   "main": "src/index.js",
   "compatibility_date": "2026-01-01",
   "workers_dev": true,
+  // 可选：自定义域名在手机网络不可达时，让模块和动态坐标使用原生 workers.dev 地址。
+  // "vars": { "CLIENT_ORIGIN": "https://你的-worker.你的子域.workers.dev" },
   // 首次部署前执行: npx wrangler kv namespace create LOC_KV
   // 把输出的 id 填到下方（preview_id 用于 wrangler dev）
   "kv_namespaces": [

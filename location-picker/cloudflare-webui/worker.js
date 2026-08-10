@@ -242,7 +242,7 @@ const SPOOFER_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
 const QX_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer-qx.js";
-const APP_VERSION = "0.2.2-plus";
+const APP_VERSION = "0.2.3-plus";
 const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer-plus";
 const UPSTREAM_REPO = "https://github.com/mekos2772/ios-location-spoofer";
 const DEVELOPER_NAME = "SMTH DAGG";
@@ -551,7 +551,8 @@ async function load(){
   document.getElementById('status').innerHTML =
     '<div class="status-line">KV <span class="badge '+(d.kv?'ok':'bad')+'">'+(d.kv?'正常':'未绑定')+'</span></div>'+
     '<div class="status-line">TOKEN <span class="badge '+(d.tokenConfigured?'ok':'bad')+'">'+(d.tokenConfigured?'已配置':'未生成')+'</span></div>'+
-    '<div class="status-line small muted">当前域名</div><div class="mono">'+d.origin+'</div>';
+    '<div class="status-line small muted">后台域名</div><div class="mono">'+d.origin+'</div>'+
+    (d.clientOrigin !== d.origin ? '<div class="status-line small muted">手机数据通道</div><div class="mono">'+d.clientOrigin+'</div>' : '');
   document.getElementById('loc').textContent =
     d.loc.latitude + ', ' + d.loc.longitude + ' / 海拔 ' + d.loc.altitude + 'm';
   document.getElementById('mapUrl').textContent = d.urls.map;
@@ -631,16 +632,27 @@ function locNumbers(loc) {
   };
 }
 
-function toolUrls(origin, token) {
+function resolveClientOrigin(env, fallbackOrigin) {
+  const configured = String(env.CLIENT_ORIGIN || "").trim().replace(/\/+$/, "");
+  if (!configured) return fallbackOrigin;
+  try {
+    const url = new URL(configured);
+    return url.protocol === "https:" ? url.origin : fallbackOrigin;
+  } catch {
+    return fallbackOrigin;
+  }
+}
+
+function toolUrls(origin, token, clientOrigin = origin) {
   const encoded = encodeURIComponent(token);
   return {
     map: token ? `${origin}/?token=${encoded}` : "",
-    shadowrocket: token ? `${origin}/shadowrocket-v2.sgmodule?token=${encoded}` : "",
-    surge: token ? `${origin}/surge.sgmodule?token=${encoded}` : "",
-    loonPlugin: token ? `${origin}/loon.lnplugin?token=${encoded}` : "",
-    loonConfig: token ? `${origin}/loc.json?token=${encoded}` : "",
-    quantumultx: token ? `${origin}/quantumultx.snippet?token=${encoded}` : "",
-    stash: token ? `${origin}/stash.stoverride?token=${encoded}` : "",
+    shadowrocket: token ? `${clientOrigin}/shadowrocket-v2.sgmodule?token=${encoded}` : "",
+    surge: token ? `${clientOrigin}/surge.sgmodule?token=${encoded}` : "",
+    loonPlugin: token ? `${clientOrigin}/loon.lnplugin?token=${encoded}` : "",
+    loonConfig: token ? `${clientOrigin}/loc.json?token=${encoded}` : "",
+    quantumultx: token ? `${clientOrigin}/quantumultx.snippet?token=${encoded}` : "",
+    stash: token ? `${clientOrigin}/stash.stoverride?token=${encoded}` : "",
   };
 }
 
@@ -874,14 +886,16 @@ export default {
       const token = await getAppToken(env);
       const loc = await readLoc(env);
       const origin = url.origin;
+      const clientOrigin = resolveClientOrigin(env, origin);
       return jsonResponse({
         ok: true,
         kv: !!env.LOC_KV,
         tokenConfigured: !!token,
         token,
         origin,
+        clientOrigin,
         loc,
-        urls: toolUrls(origin, token),
+        urls: toolUrls(origin, token, clientOrigin),
       });
     }
 

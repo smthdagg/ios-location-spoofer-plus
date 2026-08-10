@@ -177,11 +177,12 @@ TOKEN 不对，回 `/admin` 复制完整链接。
 
 ### 开代理更新模块 TLS 报错
 
-给配置服务器域名加直连规则：
+先用手机浏览器打开自定义域名。如果手机无法访问，在 Worker 设置里增加文本变量 `CLIENT_ORIGIN`，值填写该 Worker 的原生 `https://名称.子域.workers.dev` 地址。后台仍走自定义域名，生成的模块和动态坐标会改走原生地址。
+
+若全局代理可访问、配置模式不可访问，则给自定义域名设置代理规则：
 
 ```text
-DOMAIN,你的域名,DIRECT
-DOMAIN-SUFFIX,workers.dev,DIRECT
+DOMAIN,你的域名,PROXY
 ```
 
 不要把你的 Cloudflare 后台域名加入 Shadowrocket HTTPS 解密列表。
