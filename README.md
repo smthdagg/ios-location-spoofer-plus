@@ -2,6 +2,7 @@
 
 ## Language / 语言
 
+- [Shadowrocket 图文完整安装使用教程](完整的安装使用教程.md)
 - [中文完整教程](#完整中文教程)
 - [Full English Guide](#full-english-guide)
 
