@@ -77,3 +77,21 @@ test("generates a focused Shadowrocket WLOC response module", async () => {
   assert.match(moduleText, /configHost=https:\/\/wloc\.example\.com/);
   assert.match(moduleText, /hostname = %APPEND% gs-loc\.apple\.com, gs-loc-cn\.apple\.com/);
 });
+
+test("retires diagnostic modules so they cannot override the official module", async () => {
+  const origin = "https://wloc.example.com";
+  const accessCode = "not-a-real-credential-1234";
+  const env = { LOC_KV: new MemoryKv() };
+  await env.LOC_KV.put("settings:token", accessCode);
+
+  for (const path of ["shadowrocket-apple.sgmodule", "shadowrocket-static.sgmodule"]) {
+    const response = await worker.fetch(new Request(
+      `${origin}/${path}?token=${accessCode}`
+    ), env);
+    const body = await response.text();
+
+    assert.equal(response.status, 410);
+    assert.match(body, /shadowrocket-v2\.sgmodule/);
+    assert.doesNotMatch(body, /type=http-response|37\.3349|-122\.00902/);
+  }
+});

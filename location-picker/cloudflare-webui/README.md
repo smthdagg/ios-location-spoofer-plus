@@ -134,7 +134,7 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 
 把它导入 Shadowrocket → 配置 → 模块 → `+` → 来自 URL。
 
-HTTPS 解密只保留 `gs-loc.apple.com` 和 `gs-loc-cn.apple.com`。不要把高德地图瓦片域名加入 MITM。新版模块使用完整二进制响应、`max-size=0` 和 30 秒脚本超时，并直接从上游主仓库加载脚本。
+开启 HTTPS 解密和“通过 HTTP/2 进行中间人攻击”。模块会自动注入 `gs-loc.apple.com` 和 `gs-loc-cn.apple.com`，无需在“指定的域名请求”中手填。不要把高德、阿里 DNS、Cloudflare 后台或地图瓦片域名加入 MITM。正式模块使用完整二进制响应、`max-size=0` 和 30 秒脚本超时，并直接从上游主仓库加载脚本。
 
 Plus 版请使用后台生成的对应模块 URL，不要再导入上游静态配置。更换定位时，Shadowrocket、Surge、Loon、Stash 只需要在后台地图保存新坐标，不需要反复重新导入模块。Quantumult X 片段使用当前坐标静态生成，后台修改坐标后需要重新导入或刷新片段。
 
@@ -177,14 +177,8 @@ TOKEN 生成后日常不需要再操作。后台只保留“重新生成 TOKEN �
 
 TOKEN 不对，回 `/admin` 复制完整链接。
 
-### 开代理更新模块 TLS 报错
+### 模块导入后仍固定在苹果总部
 
-先用手机浏览器打开自定义域名。如果手机无法访问，在 Worker 设置里增加文本变量 `CLIENT_ORIGIN`，值填写该 Worker 的原生 `https://名称.子域.workers.dev` 地址。后台仍走自定义域名，生成的模块和动态坐标会改走原生地址。
+删除 Apple Test、Static Test、上游基础模块、旧 Plus 模块和其他重复定位模块，再从 `/admin` 重新导入并只启用一个正式模块。旧诊断地址从 `v1.0.0` 起返回 `410 Gone`，不再提供可拦截定位的测试配置。
 
-若全局代理可访问、配置模式不可访问，则给自定义域名设置代理规则：
-
-```text
-DOMAIN,你的域名,PROXY
-```
-
-不要把你的 Cloudflare 后台域名加入 Shadowrocket HTTPS 解密列表。
+正式方案不要求添加 `DIRECT`、`PROXY`、Fake-IP、DNS 或 CNAME 特例。确认手机浏览器能打开后台域名，并且不要把后台域名加入 HTTPS 解密列表。

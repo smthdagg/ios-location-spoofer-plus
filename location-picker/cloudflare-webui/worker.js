@@ -242,7 +242,7 @@ const SPOOFER_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer.js";
 const QX_SCRIPT_PATH =
   "https://raw.githubusercontent.com/mekos2772/ios-location-spoofer/main/location-spoofer-qx.js";
-const APP_VERSION = "0.2.4-plus";
+const APP_VERSION = "1.0.0";
 const PROJECT_REPO = "https://github.com/smthdagg/ios-location-spoofer-plus";
 const UPSTREAM_REPO = "https://github.com/mekos2772/ios-location-spoofer";
 const DEVELOPER_NAME = "SMTH DAGG";
@@ -758,22 +758,13 @@ script-providers:
   );
 }
 
-function staticModuleResponse(request, loc, name, includeBody = true) {
-  const url = new URL(request.url);
-  const scriptUrl = SPOOFER_SCRIPT_PATH;
-  const { altitude, horizontalAccuracy, verticalAccuracy } = locNumbers(loc);
+function retiredDiagnosticResponse(includeBody = true) {
   return textResponse(
-    includeBody ? `#!name=${name}
-#!desc=诊断用：硬编码坐标，不读取 /loc.json。用于确认 Shadowrocket 模块和 MITM 是否真的生效。
-#!homepage=https://github.com/mekos2772/ios-location-spoofer
-
-[Script]
-iOS Location Spoofer = type=http-response,pattern=^https?:\\/\\/gs-loc(?:-cn)?\\.apple\\.com\\/clls\\/wloc(?:\\?.*)?$,requires-body=1,binary-body-mode=1,max-size=0,timeout=30,script-path=${scriptUrl},argument=mode=response&enabled=true&latitude=${loc.latitude}&longitude=${loc.longitude}&horizontalAccuracy=${horizontalAccuracy}&verticalAccuracy=${verticalAccuracy}&altitude=${altitude}&debug=true
-
-[MITM]
-hostname = %APPEND% gs-loc.apple.com, gs-loc-cn.apple.com
-` : "",
-    "text/plain; charset=utf-8"
+    includeBody
+      ? "This diagnostic module was retired in v1.0.0 because it can override the official dynamic module. Delete old test modules and import /shadowrocket-v2.sgmodule from the Plus dashboard.\n"
+      : "",
+    "text/plain; charset=utf-8",
+    410
   );
 }
 
@@ -1036,18 +1027,11 @@ export default {
     }
 
     if (url.pathname === "/shadowrocket-apple.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
-      if (!auth.ok) {
-        return unauthorized(auth.error);
-      }
-      return staticModuleResponse(request, DEFAULT, "iOS Location Spoofer Plus Apple Test", request.method === "GET");
+      return retiredDiagnosticResponse(request.method === "GET");
     }
 
     if (url.pathname === "/shadowrocket-static.sgmodule" && (request.method === "GET" || request.method === "HEAD")) {
-      if (!auth.ok) {
-        return unauthorized(auth.error);
-      }
-      const loc = await readLoc(env);
-      return staticModuleResponse(request, loc, "iOS Location Spoofer Plus Static Test", request.method === "GET");
+      return retiredDiagnosticResponse(request.method === "GET");
     }
 
     if (url.pathname === "/location-spoofer.js" && (request.method === "GET" || request.method === "HEAD")) {

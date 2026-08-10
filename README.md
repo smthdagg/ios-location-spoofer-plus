@@ -22,7 +22,7 @@ Plus 版维护：
 
 - Developer: **SMTH DAGG**
 - Repo: [smthdagg/ios-location-spoofer-plus](https://github.com/smthdagg/ios-location-spoofer-plus)
-- Version: `0.2.2-plus`
+- Stable release: `1.0.0`
 
 ## 核心功能
 
@@ -33,8 +33,8 @@ Plus 版维护：
 - 自动生成 Shadowrocket、Surge、Loon、Quantumult X、Stash 配置 URL
 - 后台内嵌地图定位管理
 - OSM、Carto、Esri 卫星、OpenTopo、高德地图、高德卫星底图
-- `/health` 诊断接口
-- 测试模块：苹果总部、当前 KV 坐标
+- `/health` 健康检查接口
+- 单一正式模块机制，避免多个定位模块互相覆盖
 
 ## 完整中文教程
 
@@ -178,15 +178,7 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 
 Shadowrocket、Surge、Loon、Stash 更换定位通常不需要重新导入模块，只需要在 Plus 后台地图保存新位置，再关闭并开启一次 iPhone 定位服务。
 
-如果自定义域名在手机浏览器中无法访问，动态定位也无法读取它。推荐给 Worker 增加 `CLIENT_ORIGIN` 变量，值填写该 Worker 可正常访问的原生 `workers.dev` 地址。后台网页仍使用自定义域名，但生成的模块、脚本和 `/loc.json` 会自动改走原生地址。
-
-只有确认自定义域名在手机上可以访问时，才需要按实际网络策略决定走代理或直连。若“全局代理可访问、配置模式不可访问”，应让该域名走代理，不能写成 `DIRECT`：
-
-```text
-DOMAIN,你的域名,PROXY
-```
-
-不要把你的 Cloudflare 配置服务器域名加入 HTTPS 解密列表。
+正式方案不要求给 Cloudflare 域名增加 `DIRECT`、`PROXY`、Fake-IP 或 DNS 特例，也不要求配置 CNAME 转发。使用 Worker Custom Domain 时，Cloudflare 会处理域名绑定和证书。只要手机浏览器能打开后台域名即可；不要把 Cloudflare 后台域名加入 HTTPS 解密列表。
 
 ## 第三部分：手机端 HTTPS 解密与证书
 
@@ -199,7 +191,7 @@ DOMAIN,你的域名,PROXY
 - 常见路径：配置 → 当前配置文件右侧 `i` → HTTPS 解密
 - 部分版本：设置 → HTTPS 解密
 
-打开 HTTPS 解密后，确认域名列表里有：
+打开 HTTPS 解密，并开启“通过 HTTP/2 进行中间人攻击”（不同版本名称可能略有差异）。正式模块会自动注入：
 
 ```text
 gs-loc.apple.com
@@ -208,7 +200,7 @@ gs-loc-cn.apple.com
 
 只解密以上两个 Apple WLOC 域名。高德域名仅用于网页底图，不属于 Apple 定位响应，不要加入 HTTPS 解密列表。Plus 模块使用完整二进制响应、`max-size=0` 和 30 秒脚本超时，以兼容较大的 WLOC 响应。
 
-如果没有，就手动添加。
+无需在“指定的域名请求”中手动填写，也不要加入高德、阿里 DNS、Cloudflare 后台或地图瓦片域名。
 
 ### 2. 安装并完全信任 CA 证书
 
@@ -326,22 +318,12 @@ https://你的域名/loc.json?token=你的TOKEN
 1. 模块已启用。
 2. HTTPS 解密已开启。
 3. CA 证书已完全信任。
-4. MITM 域名完整。
-5. 导入的是后台生成的对应 Plus 模块，且旧模块已经删除或停用。
+4. 已开启通过 HTTP/2 进行中间人攻击。
+5. 只启用了后台生成的一个 Plus 正式模块，旧模块已经删除。
 
-### 4. 使用诊断模块
+### 4. 排除模块冲突
 
-后台 Worker 提供两个诊断模块：
-
-```text
-https://你的域名/shadowrocket-apple.sgmodule?token=你的TOKEN
-https://你的域名/shadowrocket-static.sgmodule?token=你的TOKEN
-```
-
-- `apple`：硬编码苹果总部。
-- `static`：硬编码当前 KV 坐标。
-
-两个都无效时，通常是 Shadowrocket 解密、证书或模块启用问题。
+正式版只允许启用一个由 `/admin` 生成的 Plus 模块。旧版的 Apple Test、Static Test、上游基础模块或重复 Plus 模块会同时拦截 Apple WLOC 响应，表现为后台已经保存伦敦或香港，手机却固定在苹果总部。请删除全部旧定位模块，再从后台重新导入唯一的正式模块。`v1.0.0` 起，旧诊断地址返回 `410 Gone`，不再下发可拦截定位的测试配置。
 
 ## 常见问题
 
@@ -364,7 +346,7 @@ TOKEN 不对。回到 `/admin` 复制后台生成的完整地址。
 1. 代理工具模块是否启用。
 2. HTTPS 解密是否开启。
 3. CA 证书是否完全信任。
-4. 四个 Apple / 高德定位域名是否在 MITM 列表。
+4. 是否开启 HTTPS 解密及 HTTP/2 中间人攻击；模块会自动加入两个 Apple 域名，无需手填。
 5. 是否删除了旧模块并导入后台生成的 Plus 模块。
 6. 保存后台坐标后是否关闭再开启 iPhone 定位服务。
 
@@ -402,7 +384,7 @@ The iPhone side handles HTTPS decryption. The Cloudflare side handles:
 - Shadowrocket / Surge / Loon / Quantumult X / Stash module URL generation
 - Location storage in KV
 - Map-based location picking
-- Diagnostics and health checks
+- Health checks and conflict-safe module retirement
 
 ![Plus Admin Dashboard](docs/assets/admin-dashboard.png)
 
@@ -460,14 +442,14 @@ Other clients:
 
 #### 2.3 Enable HTTPS Decryption
 
-In Shadowrocket, enable HTTPS decryption and make sure these MITM hostnames are included:
+In Shadowrocket, enable HTTPS decryption and HTTP/2 man-in-the-middle interception. The official module automatically appends:
 
 ```text
 gs-loc.apple.com
 gs-loc-cn.apple.com
 ```
 
-Decrypt only these two Apple WLOC hosts. Amap hostnames are map-tile sources, not Apple location-response endpoints, and must not be added to MITM. Plus uses the complete binary response with `max-size=0` and a 30-second script timeout.
+Do not manually fill the requested-host list. Decrypt only these two Apple WLOC hosts. Amap, AliDNS, Cloudflare dashboard, and map-tile hostnames must not be added to MITM. Plus uses the complete binary response with `max-size=0` and a 30-second script timeout.
 
 #### 2.4 Install And Trust The CA Certificate
 
@@ -586,15 +568,7 @@ Shadowrocket steps:
 
 You do not need to update the module repeatedly for normal location changes. Shadowrocket, Surge, Loon, and Stash read the latest coordinates from `/loc.json` through `configHost` / `configToken`. Quantumult X currently uses a static snippet, so re-import or refresh it after changing locations.
 
-If the custom domain cannot be opened on the phone, set `CLIENT_ORIGIN` to the Worker's reachable native `workers.dev` URL. The dashboard stays on the custom domain while client modules, scripts, and `/loc.json` use the native endpoint.
-
-If the domain works only in global proxy mode, route it through the proxy in configuration mode:
-
-```text
-DOMAIN,your-domain,PROXY
-```
-
-Do not add the Cloudflare dashboard domain to the HTTPS decryption list.
+The standard setup requires no custom `DIRECT`, `PROXY`, Fake-IP, DNS, or CNAME rule. Cloudflare handles DNS and TLS for a Worker Custom Domain. Confirm that the dashboard domain opens in the iPhone browser, and never add that domain to the HTTPS decryption list.
 
 ### 6. Map Location Manager
 
@@ -656,20 +630,12 @@ Verify:
 1. The module is enabled.
 2. HTTPS decryption is enabled.
 3. The CA certificate is fully trusted.
-4. MITM hostnames are complete.
-5. The imported module is the Plus-generated module for your client.
+4. HTTP/2 man-in-the-middle interception is enabled.
+5. Exactly one Plus-generated location module is enabled and all old modules are deleted.
 
-#### 7.4 Diagnostic Modules
+#### 7.4 Eliminate Module Conflicts
 
-```text
-https://your-domain/shadowrocket-apple.sgmodule?token=YOUR_TOKEN
-https://your-domain/shadowrocket-static.sgmodule?token=YOUR_TOKEN
-```
-
-- `apple`: hardcoded Apple Park.
-- `static`: hardcoded current KV coordinates.
-
-If neither works, the problem is usually HTTPS decryption, certificate trust, or module activation.
+Only one official Plus module generated by `/admin` should be enabled. Old Apple Test, Static Test, upstream base, or duplicate Plus modules can intercept the same Apple WLOC response and override the selected location. Delete every old location module, then import the official module again. From `v1.0.0`, legacy diagnostic URLs return `410 Gone` and no longer provide active interception rules.
 
 ### 8. FAQ
 

@@ -17,8 +17,8 @@
 | `/loon.lnplugin?token=` | GET | Loon 插件 |
 | `/quantumultx.snippet?token=` | GET | Quantumult X 静态片段 |
 | `/stash.stoverride?token=` | GET | Stash 覆写 |
-| `/shadowrocket-apple.sgmodule?token=` | GET | 诊断模块：苹果总部 |
-| `/shadowrocket-static.sgmodule?token=` | GET | 诊断模块：当前 KV 坐标 |
+| `/shadowrocket-apple.sgmodule` | GET | 已退役，返回 `410 Gone` |
+| `/shadowrocket-static.sgmodule` | GET | 已退役，返回 `410 Gone` |
 | `/location-spoofer-qx.js` | GET | Quantumult X 动态坐标脚本出口 |
 | `/health` | GET | 健康检查 |
 
@@ -100,7 +100,7 @@ https://你的域名/shadowrocket-v2.sgmodule?token=自动生成的TOKEN
 - CA 证书已完全信任。
 - 保存定位后关闭再开启 iPhone 定位服务。
 
-HTTPS 解密只保留 `gs-loc.apple.com` 和 `gs-loc-cn.apple.com`。高德域名只负责地图瓦片，不应加入 MITM。生成模块使用完整二进制响应、`max-size=0` 和 30 秒超时，并直接从上游主仓库加载定位脚本。
+开启 HTTPS 解密和“通过 HTTP/2 进行中间人攻击”。模块会自动注入 `gs-loc.apple.com` 和 `gs-loc-cn.apple.com`，无需在“指定的域名请求”中手填。高德、阿里 DNS、后台域名和地图瓦片域名不应加入 MITM。生成模块使用完整二进制响应、`max-size=0` 和 30 秒超时，并直接从上游主仓库加载定位脚本。
 
 其他客户端从后台复制对应 URL：
 
@@ -109,13 +109,9 @@ HTTPS 解密只保留 `gs-loc.apple.com` 和 `gs-loc-cn.apple.com`。高德域�
 - Stash：`stash.stoverride`
 - Quantumult X：`quantumultx.snippet`，这是当前坐标静态片段，后台改坐标后需要重新导入或刷新。
 
-如果自定义域名在手机浏览器无法访问，在 Worker 变量中设置 `CLIENT_ORIGIN=https://你的-worker.你的子域.workers.dev`。后台仍可使用自定义域名，手机模块和动态坐标会改用原生地址。
+正式部署不要求自定义 `DIRECT`、`PROXY`、Fake-IP、DNS 或 CNAME 规则。`CLIENT_ORIGIN` 仅保留用于特殊网络环境的兼容性覆盖，不是标准安装步骤。
 
-若全局代理能访问、配置模式不能访问，则该域名必须走代理：
-
-```text
-DOMAIN,你的域名,PROXY
-```
+升级到 `v1.0.0` 时，请删除 Apple Test、Static Test、上游基础模块和重复 Plus 模块，只重新导入后台生成的一个正式模块。旧诊断地址已返回 `410 Gone`，避免再次覆盖动态坐标。
 
 ## 地图底图
 
